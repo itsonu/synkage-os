@@ -4,6 +4,16 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-24 — Phase 3 (Skills) done
+- Built `synkage/skills/base_skill.py` and `registry.py` (duplicate rejection, permission check **before** input validation, fresh instance per call, output type check, `for_agent()` client).
+- Skills (rule-based): `decision/plan_steps` (the planner's templates moved here), `analysis/classify_intent`, `text/format_note`.
+- Permissions: `agent_skills` in `config/permissions.yaml`, default deny (planner: plan_steps + classify_intent; builder: format_note; reporter: none).
+- Agents take `(config, skills)`; Prime shares one registry. Builder adds a formatted `note` to ready note drafts. New `skills` CLI command.
+- Boundary test: agents may import only `synkage.skills.registry`.
+- Decision (user didn't answer the LLM question): shipped 3 of 5 skills; summarize + draft_message deferred.
+- Noticed: "buy" is a payments keyword, so `save note buy milk` needs confirmation. By design (conservative), but it may annoy in practice.
+- Tests: 174 passing. Next: Phase 4 (routing).
+
 ## 2026-09-24 — Phase 2 (Agents) done
 - Built the agent contract (`synkage/agents/base_agent.py`: `AgentTask`, `AgentResult`, `Artifact`, `BaseAgent.run`), plus planner, builder and reporter agents and `registry.AGENTS`.
 - `Prime.delegate` + `select_chain`: level 0 → no agents; preview / level 1 / unknown verb / `plan` → planner → reporter; otherwise planner → builder → reporter. It stops at the first failure.

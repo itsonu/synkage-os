@@ -28,6 +28,7 @@ python scripts/run_synkage.py --log-level DEBUG --config-dir path/to/config stat
 python scripts/run_synkage.py parse "send message to Rahul" [--json]   # intent + autonomy decision
 python scripts/run_synkage.py prepare "send message to Raj: late"      # + agent chain -> report, artifacts in runs/
 python scripts/run_synkage.py shell        # interactive: parse -> prepare -> confirm; executes nothing yet
+python scripts/run_synkage.py skills       # registered skills + which agents may call them
 python -m pytest -q                        # all tests
 python -m pytest tests/test_config.py::test_cannot_drop_hard_safety_rule   # single test
 ruff check . && ruff format --check .      # lint + format check
@@ -50,6 +51,7 @@ Pipeline: `interfaces → context → brain → agents → skills → execution 
 - `synkage/interfaces/cli.py` is the Typer app. Its callback loads config for every command and puts it on `ctx.obj`.
 - Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. `Prime.delegate(result)` then runs an agent chain (planner → builder → reporter, or planner → reporter for previews). Agents communicate **only through JSON artifact files** in `runs/<run-id>/NN-<agent>.json` (gitignored; `SYNKAGE_RUNS_DIR` overrides; tests use a temp dir). Finally, callers check `may_execute`, then run `execution/confirmation_loop.confirm` if `requires_confirmation`. The interface layer injects `ask`/`show` so the rule stays out of the UI.
 - New agents subclass `BaseAgent` (`name`, `kind`, `produce()`) and register in `synkage/agents/registry.py`. `run()` turns every failure into `status=failed`; it never raises.
+- Agents reach skills **only** via `self.skills.call(name, **data)`, a registry client bound to the agent's name. `SkillRegistry.invoke` checks `agent_skills` in `config/permissions.yaml` (default deny) before validating input, and builds a fresh skill instance per call. New skills subclass `BaseSkill` (`name`, `description`, `Input`, `Output`, `run()`), live in `synkage/skills/{text,analysis,decision}/`, and are added to `DEFAULT_SKILLS` and to an agent's `agent_skills` entry.
 - `tests/test_layer_boundaries.py` enforces the import rules below. Extend it when a new layer gets code.
 
 ### Layer boundaries (invariants — keep them)

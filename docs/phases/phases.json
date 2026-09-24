@@ -1,7 +1,7 @@
 {
   "project": "synkage-core",
   "created": "2026-09-24T18:48:00Z",
-  "current_phase": "phase-03-skills",
+  "current_phase": "phase-04-routing",
   "status": "in_progress",
   "mvp_complete_after": [
     "phase-01-brain",
@@ -175,7 +175,7 @@
       "id": "phase-03-skills",
       "title": "Skills system",
       "goal": "Agents invoke stateless, permission-gated skills through a registry.",
-      "status": "todo",
+      "status": "done",
       "depends_on": [
         "phase-02-agents"
       ],
@@ -188,26 +188,26 @@
         {
           "id": "ac-1",
           "text": "Skill registry lists registered skills and rejects duplicates — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_skill_registry.py::test_lists_registered_skills, ::test_rejects_duplicate_names, ::test_register_after_init_rejects_duplicate (+ unknown skill, input/output validation)"
         },
         {
           "id": "ac-2",
           "text": "Calling a skill the agent lacks permission for raises PermissionDenied — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_skill_registry.py::test_permission_denied_for_unlisted_skill, ::test_unlisted_agent_is_denied_everything, ::test_permission_checked_before_input_validation, ::test_permission_config_names_real_agents_and_skills"
         },
         {
           "id": "ac-3",
           "text": "At least 3 of the 5 MVP skills implemented, each with a passing unit test",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "3 of 5 built: plan_steps, classify_intent, format_note — tests/test_skills.py (17 tests). summarize + draft_message deferred pending the LLM decision"
         },
         {
           "id": "ac-4",
           "text": "An agent from Phase 2 invokes a skill only via the registry — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_agents_use_skills.py (5 tests: planner calls go through the registry, planner output comes from the registered skill, planner fails with PermissionDenied when not allowed, builder formats notes via registry); tests/test_layer_boundaries.py::test_agents_reach_skills_only_through_the_registry"
         }
       ]
     },
