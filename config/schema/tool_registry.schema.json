@@ -1,0 +1,90 @@
+{
+  "$defs": {
+    "Tool": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ToolKind"
+        },
+        "adapter": {
+          "description": "Execution adapter that drives this tool, e.g. local_exec, openclaw.",
+          "title": "Adapter",
+          "type": "string"
+        },
+        "risk_class": {
+          "title": "Risk Class",
+          "type": "string"
+        },
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "notes": {
+          "default": "",
+          "title": "Notes",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "kind",
+        "adapter",
+        "risk_class"
+      ],
+      "title": "Tool",
+      "type": "object"
+    },
+    "ToolKind": {
+      "enum": [
+        "browser",
+        "desktop",
+        "runtime"
+      ],
+      "title": "ToolKind",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "$Schema"
+    },
+    "version": {
+      "default": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "tools": {
+      "items": {
+        "$ref": "#/$defs/Tool"
+      },
+      "title": "Tools",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tools"
+  ],
+  "title": "ToolRegistry",
+  "type": "object"
+}

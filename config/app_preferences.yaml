@@ -1,0 +1,9 @@
+# Preferred tool per task type. Values must be tool ids in config/tool_registry.json.
+# Defaults inferred from README examples and docs/plan.md Phase 5 targets.
+
+preferred_tools:
+  messaging: whatsapp_web
+  email: gmail
+  notes: sticky_notes
+  code: vscode
+  web: browser

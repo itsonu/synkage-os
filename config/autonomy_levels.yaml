@@ -1,0 +1,24 @@
+# Autonomy levels and risk classes — source: docs/autonomy_safety.md
+# Loaded and validated by synkage/config.py.
+
+default_level: 2
+
+levels:
+  0: {name: observe, description: Observe only}
+  1: {name: plan, description: Plan only}
+  2: {name: confirm, description: Execute with confirmation}
+  3: {name: auto, description: Limited auto-execute}
+
+risk_classes:
+  low:
+    examples: [notes, formatting, summaries]
+    requires_confirmation: false
+  medium:
+    examples: [sending messages, replies]
+    requires_confirmation: false
+  high:
+    examples: [account actions, purchases]
+    requires_confirmation: true
+  critical:
+    examples: [financial, security, deletion]
+    requires_confirmation: true

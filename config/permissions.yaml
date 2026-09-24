@@ -1,0 +1,12 @@
+# Hard safety rules — source: docs/autonomy_safety.md ("Never autonomous").
+# These categories always require explicit user confirmation.
+# You may ADD categories here; removing a built-in one fails config validation
+# (see HARD_NEVER_AUTONOMOUS in synkage/config.py).
+
+never_autonomous:
+  - payments
+  - account_changes
+  - password_handling
+  - public_posting
+  - destructive_file_ops
+  - system_config_changes

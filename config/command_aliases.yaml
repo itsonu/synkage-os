@@ -1,0 +1,22 @@
+# Command vocabulary — source: docs/command_grammar.md
+# Grammar: <action> <object> [target] [options]
+# Parsed by the intent resolver (Phase 1); Phase 0 only loads and validates it.
+
+verbs: [send, reply, create, save, open, find, summarize, plan, generate, execute]
+
+# "use <directive>" -> tool id in config/tool_registry.json
+tool_directives:
+  browser: browser
+  sticky notes: sticky_notes
+  gmail: gmail
+  whatsapp: whatsapp_web
+  vscode: vscode
+
+# phrase -> autonomy behaviour
+autonomy_modifiers:
+  preview only: preview
+  ask before send: confirm
+  auto execute: auto
+  dry run: dry_run
+
+agent_directives: [research then write, plan then execute, chain agents]

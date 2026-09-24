@@ -1,0 +1,60 @@
+{
+  "$schema": "./schema/tool_registry.schema.json",
+  "version": 1,
+  "tools": [
+    {
+      "id": "browser",
+      "name": "Browser (Playwright)",
+      "kind": "browser",
+      "adapter": "local_exec",
+      "risk_class": "low",
+      "enabled": false,
+      "notes": "Generic browser automation. Controller built in Phase 5."
+    },
+    {
+      "id": "whatsapp_web",
+      "name": "WhatsApp Web",
+      "kind": "browser",
+      "adapter": "local_exec",
+      "risk_class": "medium",
+      "enabled": false,
+      "notes": "Message draft flow with confirmation before send (Phase 5)."
+    },
+    {
+      "id": "gmail",
+      "name": "Gmail",
+      "kind": "browser",
+      "adapter": "local_exec",
+      "risk_class": "medium",
+      "enabled": false,
+      "notes": "Email draft flow with confirmation before send (Phase 5)."
+    },
+    {
+      "id": "sticky_notes",
+      "name": "Sticky Notes",
+      "kind": "desktop",
+      "adapter": "local_exec",
+      "risk_class": "low",
+      "enabled": false,
+      "notes": "OS-level native note saving (Phase 5)."
+    },
+    {
+      "id": "vscode",
+      "name": "VS Code",
+      "kind": "desktop",
+      "adapter": "local_exec",
+      "risk_class": "low",
+      "enabled": false,
+      "notes": "IDE controller (e.g. 'open vscode and search auth bug')."
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw runtime",
+      "kind": "runtime",
+      "adapter": "openclaw",
+      "risk_class": "medium",
+      "enabled": false,
+      "notes": "Optional external agent runtime (Phase 8). Always under the autonomy guard."
+    }
+  ]
+}

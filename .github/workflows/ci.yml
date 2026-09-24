@@ -1,0 +1,22 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+      - run: pip install -r requirements.txt ruff
+      - run: ruff check .
+      - run: ruff format --check .
+      - run: python -m pytest -q
+      - run: python scripts/run_synkage.py
+      # Errors only (missing type, broken links, missing sources). Not --strict: the
+      # staleness check compares file/commit times and would flag every fresh checkout.
+      - run: python docs/okf/.tools/okf_lint.py --repo . --bundle docs/okf
+      - run: python scripts/phases_status.py --file docs/phases/phases.json
