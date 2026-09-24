@@ -215,11 +215,12 @@ Start Synkage CLI:
 python scripts/run_synkage.py                                # system state (config, autonomy, tools)
 python scripts/run_synkage.py parse "send message to Rahul"  # parsed intent + autonomy decision
 python scripts/run_synkage.py prepare "send message to Raj: running late"  # plan -> draft -> report
+python scripts/run_synkage.py run "send message to Raj dry run: hi"  # full pipeline, dry run
 python scripts/run_synkage.py shell                          # interactive loop with confirmation
 python scripts/run_synkage.py skills                         # registered skills and permissions
 ```
 
-Today commands are parsed, gated (autonomy level, risk, confirmation) and prepared by agents (plan, action draft, report; files in `runs/`), but nothing is executed yet. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
+Today commands are parsed, gated (autonomy level, risk, confirmation), prepared by agents (plan, action draft, report; files in `runs/`) and routed to an execution adapter, with every outcome written to `logs.jsonl`. No tool controllers exist yet (all tools are disabled), so real actions end as `unavailable`. Options go before the `:` — `send message to Raj dry run: hi`. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
 
 Contributors and AI agents: start with [`CLAUDE.md`](CLAUDE.md).
 

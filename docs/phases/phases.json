@@ -1,7 +1,7 @@
 {
   "project": "synkage-core",
   "created": "2026-09-24T18:48:00Z",
-  "current_phase": "phase-04-routing",
+  "current_phase": "phase-05-tool-control",
   "status": "in_progress",
   "mvp_complete_after": [
     "phase-01-brain",
@@ -215,7 +215,7 @@
       "id": "phase-04-routing",
       "title": "Execution routing",
       "goal": "An intent routes through the autonomy router to an adapter and returns a normalised result.",
-      "status": "todo",
+      "status": "done",
       "depends_on": [
         "phase-03-skills"
       ],
@@ -228,32 +228,32 @@
         {
           "id": "ac-1",
           "text": "tool_adapter_base defines execute() → ExecutionResult; local_exec and openclaw stub implement it — tests pass",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_adapters.py (12 tests): test_adapters_implement_contract[LocalExecAdapter, OpenClawAdapter], test_tool_adapter_is_abstract, local_exec controller dispatch/crash/unavailable, openclaw stub, builder drafts validate as ActionRequest"
         },
         {
           "id": "ac-2",
           "text": "Router picks the adapter named by the tool's registry entry — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_router.py::test_router_uses_registry_adapter, ::test_registry_beats_adapter_named_in_draft, ::test_unknown_adapter_fails, ::test_disabled_tool_is_unavailable_and_adapter_not_called"
         },
         {
           "id": "ac-3",
           "text": "Router refuses to execute an unconfirmed high/critical or never_autonomous action — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_router.py::test_unconfirmed_high_or_critical_is_refused[4 cases], ::test_never_autonomous_refused_even_with_tampered_decision, ::test_default_level_2_needs_confirmation, ::test_level_below_2_is_refused, ::test_not_ready_draft_is_refused"
         },
         {
           "id": "ac-4",
           "text": "Every execution appends an audit record with intent, tool, autonomy level, confirmation state, result — test reads it back",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_router.py::test_every_routed_action_is_audited (reads back success/refused/dry_run records: intent, tool, adapter, level, risk, confirmation, result), ::test_audit_records_router_derived_categories, ::test_audit_is_append_only_jsonl, ::test_adapter_exception_is_failed_and_audited"
         },
         {
           "id": "ac-5",
           "text": "'dry run' produces a plan and result without calling the adapter — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_router.py::test_dry_run_never_calls_adapter, ::test_dry_run_reports_unavailable_tool; tests/test_cli.py::test_run_dry_run_executes_nothing"
         }
       ]
     },

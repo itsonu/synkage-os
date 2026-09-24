@@ -27,7 +27,8 @@ python scripts/run_synkage.py              # run: load config, print system stat
 python scripts/run_synkage.py --log-level DEBUG --config-dir path/to/config status
 python scripts/run_synkage.py parse "send message to Rahul" [--json]   # intent + autonomy decision
 python scripts/run_synkage.py prepare "send message to Raj: late"      # + agent chain -> report, artifacts in runs/
-python scripts/run_synkage.py shell        # interactive: parse -> prepare -> confirm; executes nothing yet
+python scripts/run_synkage.py run "send message to Raj dry run: hi"    # parse -> prepare -> confirm -> route (+audit)
+python scripts/run_synkage.py shell        # interactive `run` loop
 python scripts/run_synkage.py skills       # registered skills + which agents may call them
 python -m pytest -q                        # all tests
 python -m pytest tests/test_config.py::test_cannot_drop_hard_safety_rule   # single test
@@ -49,7 +50,8 @@ Pipeline: `interfaces → context → brain → agents → skills → execution 
 - Runtime config lives in root `config/`, including `tool_registry.json`.
 - `synkage/config.py` loads and validates every file in `config/` into one typed `SynkageConfig`. Any failure raises `ConfigError`, and the CLI exits 1.
 - `synkage/interfaces/cli.py` is the Typer app. Its callback loads config for every command and puts it on `ctx.obj`.
-- Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. `Prime.delegate(result)` then runs an agent chain (planner → builder → reporter, or planner → reporter for previews). Agents communicate **only through JSON artifact files** in `runs/<run-id>/NN-<agent>.json` (gitignored; `SYNKAGE_RUNS_DIR` overrides; tests use a temp dir). Finally, callers check `may_execute`, then run `execution/confirmation_loop.confirm` if `requires_confirmation`. The interface layer injects `ask`/`show` so the rule stays out of the UI.
+- Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. `Prime.delegate(result)` then runs an agent chain (planner → builder → reporter, or planner → reporter for previews). Agents communicate **only through JSON artifact files** in `runs/<run-id>/NN-<agent>.json` (gitignored; `SYNKAGE_RUNS_DIR` overrides; tests use a temp dir). Finally `execution/autonomy_router.AutonomyRouter.route(request, intent, decision, confirmation)` is the **only** place an action may run. It loads the builder's draft as an `ActionRequest`, re-derives risk and safety categories itself (never trusting the decision), refuses anything unconfirmed that needs confirmation, never calls the adapter on a dry run, takes the adapter from the tool's registry entry, and appends every outcome to the audit log (`logs.jsonl`, gitignored; `SYNKAGE_AUDIT_LOG` overrides; tests use a temp file). The interface layer injects `ask`/`show` into `confirm()` so the rule stays out of the UI.
+- Adapters subclass `ToolAdapter` and register in `synkage/adapters/registry.py`. Tool controllers register in `local_exec_adapter.CONTROLLERS[tool_id]`. All seeded tools are `enabled: false`, so real commands end `unavailable` until Phase 5.
 - New agents subclass `BaseAgent` (`name`, `kind`, `produce()`) and register in `synkage/agents/registry.py`. `run()` turns every failure into `status=failed`; it never raises.
 - Agents reach skills **only** via `self.skills.call(name, **data)`, a registry client bound to the agent's name. `SkillRegistry.invoke` checks `agent_skills` in `config/permissions.yaml` (default deny) before validating input, and builds a fresh skill instance per call. New skills subclass `BaseSkill` (`name`, `description`, `Input`, `Output`, `run()`), live in `synkage/skills/{text,analysis,decision}/`, and are added to `DEFAULT_SKILLS` and to an agent's `agent_skills` entry.
 - `tests/test_layer_boundaries.py` enforces the import rules below. Extend it when a new layer gets code.
@@ -78,7 +80,7 @@ External runtimes such as OpenClaw are reached only through adapters and remain 
 - Situation detection uses rules over signals, not a model ([ADR-0003](docs/okf/decisions/0003-rule-based-situation-detection.md)).
 
 ### Command grammar (`docs/command_grammar.md`)
-`<action> <object> [target] [options]`, with message content after the first `:`. The vocabulary lives in `config/command_aliases.yaml`: per-verb `needs_target`/`needs_tool` rules, object noun → task type, `use <tool>` directives, autonomy modifiers and agent directives. Tools resolve in this order: `use X` directive > inline mention > preferred tool for the object's task type. Safety categories are matched by whole-word keywords in `config/permissions.yaml`.
+`<action> <object> [target] [options]`, with message content after the first `:`. Options go **before** the `:`. Options inside content never apply, but a safer one (`dry run`, `preview only`, `ask before send`) at the end of the content forces preview. The vocabulary lives in `config/command_aliases.yaml`: per-verb `needs_target`/`needs_tool` rules, object noun → task type, `use <tool>` directives, autonomy modifiers and agent directives. Tools resolve in this order: `use X` directive > inline mention > preferred tool for the object's task type. Safety categories are matched by whole-word keywords in `config/permissions.yaml`.
 
 ## How to work this repo (autonomy loop)
 1. Read this file, then `docs/context/state.md` to find the active phase and the next action.

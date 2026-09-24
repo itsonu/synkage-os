@@ -3,14 +3,18 @@
 _Rewritten at the end of every session. This is the cold-start resume point._
 
 - **Project status:** in_progress
-- **Active phase:** phase-04-routing — see [phase file](../phases/phase-04-routing.md)
-- **Next action:** Create `synkage/adapters/tool_adapter_base.py` with an `ExecutionResult` model and an abstract `ToolAdapter.execute(draft) -> ExecutionResult`, where `draft` is the builder's `action_draft` body. Then add a `local_exec` adapter that simulates (no real tool calls until Phase 5) and an `openclaw` stub that refuses. First test: both implement the contract (phase-04 ac-1).
+- **Active phase:** phase-05-tool-control — see [phase file](../phases/phase-05-tool-control.md)
+- **Next action:** Build a Playwright browser controller in `synkage/tools/browser/` and test it against a **local** HTML page (phase-05 ac-1; no network, no accounts). Then build the WhatsApp Web / Gmail draft flows against **mock pages** (ac-2, ac-3 automated parts). Register controllers in `synkage/adapters/local_exec_adapter.CONTROLLERS`.
 
 ## In progress
-Nothing mid-flight. Phases 0–3 are done.
+Nothing mid-flight. Phases 0–4 are done.
 
 ## Blockers
-None for Phase 4. Decide where the audit log lives (ac-4) before writing it. The simplest option consistent with the spec is an append-only `logs.jsonl` next to `runs/`; the spec's `memory/logs.json` is the Phase 7 home.
+Phase 5 is the first phase that touches real accounts. These parts **need the user**; per the CLAUDE.md guardrails, never do them unattended:
+- **Manual runs** for ac-2/ac-3 need a logged-in WhatsApp Web / Gmail session on the user's machine. Logging in is credential handling, and sending is acting as the user.
+- **Sticky Notes (ac-4)** is Windows-only; this dev container is Linux. Needs the target-OS answer (open question 2).
+- **Enabling tools (ac-5)** in `tool_registry.json` makes real actions possible. Flip them only once the controllers are tested.
+The automated parts (ac-1, mock-page tests for ac-2/ac-3) are unblocked.
 
 ## Open questions / unknowns
 Do not guess these — ask the user when the phase that needs them starts.
@@ -23,7 +27,7 @@ Do not guess these — ask the user when the phase that needs them starts.
 7. **Hotkeys / voice stub:** listed in `docs/proj.md` but not in any phase.
 
 ## Recent evidence
-- `python -m pytest -q` → 174 passed.
-- `python scripts/run_synkage.py skills` → plan_steps and classify_intent (planner), format_note (builder).
-- `prepare "save note buy milk; call mom"` → the builder draft carries note markdown `# Note (2 items)` with bullets.
-- ruff clean; OKF lint 0 errors; `phases_status.py` → current phase phase-04-routing.
+- `python -m pytest -q` → 217 passed.
+- `python scripts/run_synkage.py run "send message to Raj dry run: hi"` → `Execution: dry_run — dry run: would route to local_exec, but tool 'whatsapp_web' is disabled in tool_registry.json`, plus an audit record.
+- shell: `yes` → `unavailable` (tool disabled); `no` → `refused`; both audited to `logs.jsonl`.
+- ruff clean; OKF lint 0 errors; `phases_status.py` → current phase phase-05-tool-control.

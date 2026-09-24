@@ -4,6 +4,15 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-24 — Phase 4 (Routing) done
+- Adapters: `ActionRequest` (= builder draft, `extra="forbid"`), `ExecutionResult`/`ExecutionStatus`, `ToolAdapter`; `local_exec` (CONTROLLERS dict, empty → `unavailable`), `openclaw` stub; `adapters/registry.ADAPTERS`.
+- Execution: `action_planner` (adapter from the registry, **re-derives** risk and categories), `autonomy_router.route` (blocked → dry run → level → confirmation → skipped/unavailable → adapter; audits every outcome), `audit.py` (`logs.jsonl`, `SYNKAGE_AUDIT_LOG`).
+- CLI: new `run "<cmd>"`; `shell` now routes. Both share `_process`.
+- Found while testing: `…: hi dry run` silently ran as a normal send, because content options are ignored. Fix: a safer modifier at the end of content → preview with a hint; `auto execute` in content is still ignored. A level-2 dry run now reports "needs confirmation" for the real run.
+- Self-inflicted during testing: a skipped ruff step left env vars unset, so one `run` wrote to the repo's `runs/` and `logs.jsonl` (both gitignored, deleted). A first piped shell run hung and couldn't be reproduced afterwards (the crash path exits cleanly).
+- Decision (user didn't choose): audit log = `logs.jsonl` at the repo root, as recommended.
+- Tests: 217 passing. Next: Phase 5; its real-account parts need the user.
+
 ## 2026-09-24 — Phase 3 (Skills) done
 - Built `synkage/skills/base_skill.py` and `registry.py` (duplicate rejection, permission check **before** input validation, fresh instance per call, output type check, `for_agent()` client).
 - Skills (rule-based): `decision/plan_steps` (the planner's templates moved here), `analysis/classify_intent`, `text/format_note`.
