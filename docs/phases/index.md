@@ -10,7 +10,7 @@ Numbering follows `docs/plan.md`. **MVP = Phases 1–5 done.** Phases 6–7 can 
 | [02](phase-02-agents.md) | Agent layer | done | 4/4 | 01 |
 | [03](phase-03-skills.md) | Skills system | done | 4/4 | 02 |
 | [04](phase-04-routing.md) | Execution routing | done | 5/5 | 03 |
-| [05](phase-05-tool-control.md) | Tool control | todo | 0/5 | 04 |
+| [05](phase-05-tool-control.md) | Tool control | in_progress | 1/5 | 04 |
 | [06](phase-06-situation.md) | Situation awareness | todo | 0/4 | 04 |
 | [07](phase-07-memory.md) | Memory & night cycle | todo | 0/4 | 04 |
 | [08](phase-08-openclaw.md) | OpenClaw integration (optional) | todo | 0/3 | 04 |

@@ -261,7 +261,7 @@
       "id": "phase-05-tool-control",
       "title": "Tool control",
       "goal": "Synkage drafts a message in a real app and saves a native note, with confirmation before send.",
-      "status": "todo",
+      "status": "in_progress",
       "depends_on": [
         "phase-04-routing"
       ],
@@ -274,8 +274,8 @@
         {
           "id": "ac-1",
           "text": "Browser controller launches Chromium via Playwright and opens a URL — test against a local page passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_browser_session.py (6 tests): ::test_opens_local_page_over_http, ::test_opens_file_url — headless Chromium via Playwright opens local pages"
         },
         {
           "id": "ac-2",

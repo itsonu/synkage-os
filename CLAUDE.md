@@ -22,7 +22,7 @@ Python 3.10+. typer + prompt-toolkit (CLI), rich (output and logging), pydantic 
 ## Commands
 ```bash
 pip install -r requirements.txt ruff       # setup (inside a venv)
-playwright install                         # browser binaries; needed from Phase 5
+playwright install chromium                # browser for WhatsApp/Gmail + mock-page tests
 python scripts/run_synkage.py              # run: load config, print system state (= python -m synkage)
 python scripts/run_synkage.py --log-level DEBUG --config-dir path/to/config status
 python scripts/run_synkage.py parse "send message to Rahul" [--json]   # intent + autonomy decision
@@ -30,6 +30,7 @@ python scripts/run_synkage.py prepare "send message to Raj: late"      # + agent
 python scripts/run_synkage.py run "send message to Raj dry run: hi"    # parse -> prepare -> confirm -> route (+audit)
 python scripts/run_synkage.py shell        # interactive `run` loop
 python scripts/run_synkage.py skills       # registered skills + which agents may call them
+python scripts/run_synkage.py login        # sign in to WhatsApp/Gmail once (~/.synkage/browser-profile)
 python -m pytest -q                        # all tests
 python -m pytest tests/test_config.py::test_cannot_drop_hard_safety_rule   # single test
 ruff check . && ruff format --check .      # lint + format check
@@ -51,7 +52,10 @@ Pipeline: `interfaces → context → brain → agents → skills → execution 
 - `synkage/config.py` loads and validates every file in `config/` into one typed `SynkageConfig`. Any failure raises `ConfigError`, and the CLI exits 1.
 - `synkage/interfaces/cli.py` is the Typer app. Its callback loads config for every command and puts it on `ctx.obj`.
 - Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. `Prime.delegate(result)` then runs an agent chain (planner → builder → reporter, or planner → reporter for previews). Agents communicate **only through JSON artifact files** in `runs/<run-id>/NN-<agent>.json` (gitignored; `SYNKAGE_RUNS_DIR` overrides; tests use a temp dir). Finally `execution/autonomy_router.AutonomyRouter.route(request, intent, decision, confirmation)` is the **only** place an action may run. It loads the builder's draft as an `ActionRequest`, re-derives risk and safety categories itself (never trusting the decision), refuses anything unconfirmed that needs confirmation, never calls the adapter on a dry run, takes the adapter from the tool's registry entry, and appends every outcome to the audit log (`logs.jsonl`, gitignored; `SYNKAGE_AUDIT_LOG` overrides; tests use a temp file). The interface layer injects `ask`/`show` into `confirm()` so the rule stays out of the UI.
-- Adapters subclass `ToolAdapter` and register in `synkage/adapters/registry.py`. Tool controllers register in `local_exec_adapter.CONTROLLERS[tool_id]`. All seeded tools are `enabled: false`, so real commands end `unavailable` until Phase 5.
+- Adapters subclass `ToolAdapter` and register in `synkage/adapters/registry.py`. `local_exec` maps tool ids to `HANDLERS` (WhatsApp, Gmail, Apple Notes), which translate an `ActionRequest` into calls on the controllers in `synkage/tools/`. Controllers take plain arguments and import nothing above them.
+- **Draft → confirm → commit** ([ADR-0008](docs/okf/decisions/0008-macos-tool-control.md)): `router.draft()` stages supported actions (fills the WhatsApp message) before the prompt, except for flagged or high/critical actions. `no` clears the draft. WhatsApp sends only the exact drafted text. Gmail only ever saves drafts. Apple Notes via `osascript` with argv. Primary OS: **macOS**.
+- Tools stay `enabled: false` until the user's manual checks pass (`docs/okf/runbooks/phase5-manual-checks.md`). WhatsApp/Gmail selectors are unverified against the live sites.
+- Tests must never reach live sites: an autouse fixture makes `local_exec_adapter.shared_session` raise. Mock-page tests (`tests/mock_pages/`, local HTTP server) use the session-scoped headless `browser_session` fixture.
 - New agents subclass `BaseAgent` (`name`, `kind`, `produce()`) and register in `synkage/agents/registry.py`. `run()` turns every failure into `status=failed`; it never raises.
 - Agents reach skills **only** via `self.skills.call(name, **data)`, a registry client bound to the agent's name. `SkillRegistry.invoke` checks `agent_skills` in `config/permissions.yaml` (default deny) before validating input, and builds a fresh skill instance per call. New skills subclass `BaseSkill` (`name`, `description`, `Input`, `Output`, `run()`), live in `synkage/skills/{text,analysis,decision}/`, and are added to `DEFAULT_SKILLS` and to an agent's `agent_skills` entry.
 - `tests/test_layer_boundaries.py` enforces the import rules below. Extend it when a new layer gets code.

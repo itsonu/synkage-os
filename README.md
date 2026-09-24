@@ -195,7 +195,7 @@ python -m venv venv
 source venv/bin/activate        # macOS/Linux
 venv\Scripts\activate         # Windows
 pip install -r requirements.txt
-playwright install              # browser binaries (needed from Phase 5)
+playwright install chromium     # browser for WhatsApp/Gmail (macOS is the primary OS)
 ```
 
 Configure tools in:
@@ -218,9 +218,10 @@ python scripts/run_synkage.py prepare "send message to Raj: running late"  # pla
 python scripts/run_synkage.py run "send message to Raj dry run: hi"  # full pipeline, dry run
 python scripts/run_synkage.py shell                          # interactive loop with confirmation
 python scripts/run_synkage.py skills                         # registered skills and permissions
+python scripts/run_synkage.py login                          # sign in to WhatsApp/Gmail once
 ```
 
-Today commands are parsed, gated (autonomy level, risk, confirmation), prepared by agents (plan, action draft, report; files in `runs/`) and routed to an execution adapter, with every outcome written to `logs.jsonl`. No tool controllers exist yet (all tools are disabled), so real actions end as `unavailable`. Options go before the `:` — `send message to Raj dry run: hi`. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
+Today commands are parsed, gated (autonomy level, risk, confirmation), prepared by agents (plan, action draft, report; files in `runs/`) and routed to an execution adapter, with every outcome written to `logs.jsonl`. Controllers for WhatsApp Web (draft, then send after `yes`), Gmail (drafts only) and Apple Notes exist, but all tools stay disabled until they're verified on a real Mac, so real actions end as `unavailable` for now. Options go before the `:` — `send message to Raj dry run: hi`. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
 
 Contributors and AI agents: start with [`CLAUDE.md`](CLAUDE.md).
 

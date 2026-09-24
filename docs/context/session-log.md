@@ -4,6 +4,16 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-24 — Phase 5 (Tool control), automated part
+- User answers: primary OS **macOS**; do only the parts that don't touch their accounts.
+- Tools layer: `BrowserSession` (persistent profile outside the repo, lazy launch), `WhatsAppWeb` (phone link or exact-name search; `send` only the exact drafted text; duplicate names refused), `Gmail` (drafts only, never sends), `AppleNotes` (osascript with argv, no injection).
+- Adapters: `local_exec` `HANDLERS` translate requests into controller calls; new optional `supports_draft/draft/discard`; `ExecutionStatus.drafted`.
+- Router: `draft()` before confirmation (not for flagged or high/critical actions); `route(..., drafted=True)` clears the draft on `no`. CLI: draft → confirm → route; new `login` command.
+- Config: new `apple_notes` tool; notes preference → apple_notes; `apple notes` directive. All tools still disabled.
+- Tests: mock WhatsApp/Gmail pages on a local HTTP server with headless Chromium; an autouse guard makes the real shared browser raise in tests; CI installs Chromium. The container needs `SYNKAGE_CHROMIUM_PATH`-style fallback (Playwright 1.63 expects a newer build than the one installed).
+- Found in review: a test helper waited 30 s on a blank page (the app was correct); duplicate contact names could pick the wrong recipient (now refused).
+- Tests: 251 passed + 1 skipped. Next: the user's manual checks (runbook), then ac-5.
+
 ## 2026-09-24 — Phase 4 (Routing) done
 - Adapters: `ActionRequest` (= builder draft, `extra="forbid"`), `ExecutionResult`/`ExecutionStatus`, `ToolAdapter`; `local_exec` (CONTROLLERS dict, empty → `unavailable`), `openclaw` stub; `adapters/registry.ADAPTERS`.
 - Execution: `action_planner` (adapter from the registry, **re-derives** risk and categories), `autonomy_router.route` (blocked → dry run → level → confirmation → skipped/unavailable → adapter; audits every outcome), `audit.py` (`logs.jsonl`, `SYNKAGE_AUDIT_LOG`).
