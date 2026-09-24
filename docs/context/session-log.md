@@ -4,6 +4,15 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-24 — Phase 2 (Agents) done
+- Built the agent contract (`synkage/agents/base_agent.py`: `AgentTask`, `AgentResult`, `Artifact`, `BaseAgent.run`), plus planner, builder and reporter agents and `registry.AGENTS`.
+- `Prime.delegate` + `select_chain`: level 0 → no agents; preview / level 1 / unknown verb / `plan` → planner → reporter; otherwise planner → builder → reporter. It stops at the first failure.
+- Artifacts are JSON files in `runs/<run-id>/NN-<agent>.json` (gitignored; `SYNKAGE_RUNS_DIR` overrides). Agents read earlier work only from those files.
+- CLI: new `prepare "<cmd>"`; `shell` now prepares and shows the report **before** asking for confirmation.
+- New invariant test `tests/test_layer_boundaries.py` (agents/brain/skills/avatar import rules).
+- Decision (user didn't choose): runs dir = gitignored `runs/`. Tests use a temp dir via an autouse fixture.
+- Tests: 140 passing. Next: Phase 3 (skills). The LLM question blocks only the summarize/draft skills.
+
 ## 2026-09-24 — Phase 1 (Brain) done
 - Built `synkage/brain/intent_resolver.py` (rule-based parser → `Intent`), `autonomy_guard.py` (→ `AutonomyDecision`), `prime.py` (`Prime.handle`), `synkage/execution/confirmation_loop.py` (only `yes` confirms).
 - CLI: `parse "<cmd>" [--json]` and interactive `shell` (prompt-toolkit on a TTY, `input()` otherwise). Nothing executes yet.

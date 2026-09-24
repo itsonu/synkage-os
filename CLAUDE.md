@@ -26,7 +26,8 @@ playwright install                         # browser binaries; needed from Phase
 python scripts/run_synkage.py              # run: load config, print system state (= python -m synkage)
 python scripts/run_synkage.py --log-level DEBUG --config-dir path/to/config status
 python scripts/run_synkage.py parse "send message to Rahul" [--json]   # intent + autonomy decision
-python scripts/run_synkage.py shell        # interactive loop with confirmation; executes nothing yet
+python scripts/run_synkage.py prepare "send message to Raj: late"      # + agent chain -> report, artifacts in runs/
+python scripts/run_synkage.py shell        # interactive: parse -> prepare -> confirm; executes nothing yet
 python -m pytest -q                        # all tests
 python -m pytest tests/test_config.py::test_cannot_drop_hard_safety_rule   # single test
 ruff check . && ruff format --check .      # lint + format check
@@ -47,7 +48,9 @@ Pipeline: `interfaces → context → brain → agents → skills → execution 
 - Runtime config lives in root `config/`, including `tool_registry.json`.
 - `synkage/config.py` loads and validates every file in `config/` into one typed `SynkageConfig`. Any failure raises `ConfigError`, and the CLI exits 1.
 - `synkage/interfaces/cli.py` is the Typer app. Its callback loads config for every command and puts it on `ctx.obj`.
-- Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. Callers check `may_execute` first, then run `execution/confirmation_loop.confirm` if `requires_confirmation`. The interface layer injects `ask`/`show` so the rule stays out of the UI.
+- Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. `Prime.delegate(result)` then runs an agent chain (planner → builder → reporter, or planner → reporter for previews). Agents communicate **only through JSON artifact files** in `runs/<run-id>/NN-<agent>.json` (gitignored; `SYNKAGE_RUNS_DIR` overrides; tests use a temp dir). Finally, callers check `may_execute`, then run `execution/confirmation_loop.confirm` if `requires_confirmation`. The interface layer injects `ask`/`show` so the rule stays out of the UI.
+- New agents subclass `BaseAgent` (`name`, `kind`, `produce()`) and register in `synkage/agents/registry.py`. `run()` turns every failure into `status=failed`; it never raises.
+- `tests/test_layer_boundaries.py` enforces the import rules below. Extend it when a new layer gets code.
 
 ### Layer boundaries (invariants — keep them)
 | Layer | Owns | Must NOT |

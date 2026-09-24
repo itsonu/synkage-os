@@ -1,7 +1,7 @@
 {
   "project": "synkage-core",
   "created": "2026-09-24T18:48:00Z",
-  "current_phase": "phase-02-agents",
+  "current_phase": "phase-03-skills",
   "status": "in_progress",
   "mvp_complete_after": [
     "phase-01-brain",
@@ -136,7 +136,7 @@
       "id": "phase-02-agents",
       "title": "Agent layer",
       "goal": "Prime delegates a task to a specialist agent that returns a file artifact.",
-      "status": "todo",
+      "status": "done",
       "depends_on": [
         "phase-01-brain"
       ],
@@ -148,26 +148,26 @@
         {
           "id": "ac-1",
           "text": "base_agent defines a typed task contract (input, output artifact path, status) — unit test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_base_agent.py (8 tests): AgentTask requires output; artifact written to task.output; inputs read from files; wrong agent / missing input / invalid input / exception -> status=failed, no output"
         },
         {
           "id": "ac-2",
           "text": "planner, builder, reporter agents each produce an artifact file from a sample task — one test per agent",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_agents.py::test_planner_produces_plan, ::test_builder_produces_action_draft, ::test_reporter_produces_report (+4 edge tests)"
         },
         {
           "id": "ac-3",
           "text": "Chain planner → builder → reporter passes artifacts through files only — integration test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_delegation.py::test_full_chain_passes_artifacts_through_files (inputs chain 01->02->03); tests/test_agents.py::test_builder_uses_the_plan_file_not_its_own_plan; tests/test_layer_boundaries.py"
         },
         {
           "id": "ac-4",
           "text": "Prime.delegate(intent) picks an agent and returns its artifact path — test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_delegation.py::test_delegate_returns_last_artifact_path, ::test_select_chain[7 cases], ::test_level_0_runs_no_agents, ::test_chain_stops_at_first_failure"
         }
       ]
     },

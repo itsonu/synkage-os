@@ -214,10 +214,11 @@ Start Synkage CLI:
 ```bash
 python scripts/run_synkage.py                                # system state (config, autonomy, tools)
 python scripts/run_synkage.py parse "send message to Rahul"  # parsed intent + autonomy decision
+python scripts/run_synkage.py prepare "send message to Raj: running late"  # plan -> draft -> report
 python scripts/run_synkage.py shell                          # interactive loop with confirmation
 ```
 
-Today commands are parsed and gated (autonomy level, risk, confirmation) but nothing is executed yet. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
+Today commands are parsed, gated (autonomy level, risk, confirmation) and prepared by agents (plan, action draft, report; files in `runs/`), but nothing is executed yet. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
 
 Contributors and AI agents: start with [`CLAUDE.md`](CLAUDE.md).
 
