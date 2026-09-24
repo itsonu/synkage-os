@@ -1,5 +1,7 @@
 # Project Structure
 
+> Implemented layout: Python code lives under `synkage/<layer>/` (e.g. `synkage/brain/prime.py`); `config/`, `scripts/`, `tests/`, `docs/` stay at the root. See `docs/okf/decisions/0006-package-layout.md`.
+
 ```
 synkage-os/
 │
@@ -42,7 +44,6 @@ synkage-os/
 │ └── tool_adapter_base.py
 │
 ├── tools/ ← keep but shrink responsibility
-│ ├── tool_registry.json
 │ ├── browser/
 │ ├── desktop/
 │ └── fallback/
@@ -77,6 +78,7 @@ synkage-os/
 │ └── voice_stub.py
 │
 ├── config/
+│ ├── tool_registry.json ← moved from tools/ (ADR-0006)
 │ ├── permissions.yaml
 │ ├── autonomy_levels.yaml
 │ ├── command_aliases.yaml

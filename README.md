@@ -190,11 +190,12 @@ Setup:
 
 ```bash
 git clone https://github.com/itsonu/synkage-os.git
-cd synkage-core
+cd synkage-os
 python -m venv venv
 source venv/bin/activate        # macOS/Linux
 venv\Scripts\activate         # Windows
 pip install -r requirements.txt
+playwright install              # browser binaries (needed from Phase 5)
 ```
 
 Configure tools in:
@@ -211,10 +212,13 @@ config/app_preferences.yaml
 Start Synkage CLI:
 
 ```bash
-python scripts/run_synkage.py
+python scripts/run_synkage.py            # prints system state (config, autonomy, tools)
+python scripts/run_synkage.py --help
 ```
 
-Enter action commands. Synkage will plan, route, and execute via configured backends.
+Today the CLI loads and validates config and prints system state. Command execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
+
+Contributors and AI agents: start with [`CLAUDE.md`](CLAUDE.md).
 
 ---
 

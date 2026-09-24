@@ -1,0 +1,453 @@
+{
+  "project": "synkage-core",
+  "created": "2026-09-24T18:48:00Z",
+  "current_phase": "phase-01-brain",
+  "status": "in_progress",
+  "mvp_complete_after": [
+    "phase-01-brain",
+    "phase-02-agents",
+    "phase-03-skills",
+    "phase-04-routing",
+    "phase-05-tool-control"
+  ],
+  "phases": [
+    {
+      "id": "phase-00-foundation",
+      "title": "Foundation",
+      "goal": "Repo structure, config system, logging, and a bootable CLI that prints system state.",
+      "status": "done",
+      "depends_on": [],
+      "concepts": [
+        "modules/cli.md",
+        "modules/config-loader.md",
+        "modules/logging.md",
+        "data-models/tool-registry.md",
+        "data-models/autonomy-policy.md",
+        "data-models/command-vocabulary.md",
+        "data-models/app-preferences.md",
+        "flows/startup.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "synkage/<layer>/__init__.py exists for all 10 layers",
+          "met": true,
+          "evidence": "files synkage/{brain,agents,skills,execution,adapters,tools,context,memory,avatar,interfaces}/__init__.py"
+        },
+        {
+          "id": "ac-2",
+          "text": "pip install -r requirements.txt succeeds on Python 3.10+",
+          "met": true,
+          "evidence": "pip install -r requirements.txt ruff → exit 0 (Python 3.11.15)"
+        },
+        {
+          "id": "ac-3",
+          "text": "load_config validates all five config files; invalid config raises ConfigError naming the file",
+          "met": true,
+          "evidence": "tests/test_config.py — 13 tests pass (python -m pytest -q → 17 passed)"
+        },
+        {
+          "id": "ac-4",
+          "text": "python scripts/run_synkage.py exits 0 and prints autonomy default, risk classes, never-autonomous list, tools",
+          "met": true,
+          "evidence": "tests/test_cli.py::test_entry_script_boots, ::test_no_args_prints_status"
+        },
+        {
+          "id": "ac-5",
+          "text": "Bad --config-dir exits 1 with an error on stderr",
+          "met": true,
+          "evidence": "tests/test_cli.py::test_bad_config_dir_exits_1"
+        },
+        {
+          "id": "ac-6",
+          "text": "Logging level honours --log-level and SYNKAGE_LOG_LEVEL",
+          "met": true,
+          "evidence": "run_synkage.py --log-level DEBUG version → 'DEBUG Loaded config from …/config' on stderr; same with SYNKAGE_LOG_LEVEL=DEBUG"
+        },
+        {
+          "id": "ac-7",
+          "text": "config/schema/tool_registry.schema.json is committed and matches the pydantic model",
+          "met": true,
+          "evidence": "tests/test_config.py::test_committed_schema_matches_model"
+        },
+        {
+          "id": "ac-8",
+          "text": "ruff check, ruff format --check, OKF lint (0 errors) and phases_status.py all pass",
+          "met": true,
+          "evidence": "ruff: All checks passed; okf_lint: 0 errors; phases_status: exit 0"
+        }
+      ]
+    },
+    {
+      "id": "phase-01-brain",
+      "title": "Brain layer",
+      "goal": "Commands parse into structured intents and the autonomy guard decides when confirmation is needed.",
+      "status": "todo",
+      "depends_on": [
+        "phase-00-foundation"
+      ],
+      "concepts": [
+        "modules/brain.md",
+        "modules/execution.md",
+        "modules/interfaces.md",
+        "apis/command-grammar.md",
+        "flows/confirmation-loop.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "'send message to Rahul' parses to Intent(verb=send, object=message, target=Rahul) — unit test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "'use gmail' resolves to tool id gmail via command_aliases.yaml; 'dry run' / 'preview only' / 'ask before send' / 'auto execute' set the intent's autonomy modifier — unit tests pass",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "A command with unclear tool or target yields mode=preview (never execute) — unit test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "autonomy_guard returns requires_confirmation=True for every never_autonomous category and for high/critical risk at every level — parametrised test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-5",
+          "text": "Confirmation loop shows plan + tool target and proceeds only on explicit 'yes' — test with scripted input covers yes/no/empty",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-6",
+          "text": "Interactive CLI loop (prompt-toolkit) reads a command and prints the parsed intent and required autonomy — CliRunner/scripted-input test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-02-agents",
+      "title": "Agent layer",
+      "goal": "Prime delegates a task to a specialist agent that returns a file artifact.",
+      "status": "todo",
+      "depends_on": [
+        "phase-01-brain"
+      ],
+      "concepts": [
+        "modules/agents.md",
+        "modules/brain.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "base_agent defines a typed task contract (input, output artifact path, status) — unit test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "planner, builder, reporter agents each produce an artifact file from a sample task — one test per agent",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "Chain planner → builder → reporter passes artifacts through files only — integration test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "Prime.delegate(intent) picks an agent and returns its artifact path — test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-03-skills",
+      "title": "Skills system",
+      "goal": "Agents invoke stateless, permission-gated skills through a registry.",
+      "status": "todo",
+      "depends_on": [
+        "phase-02-agents"
+      ],
+      "concepts": [
+        "modules/skills.md",
+        "modules/agents.md",
+        "data-models/autonomy-policy.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "Skill registry lists registered skills and rejects duplicates — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "Calling a skill the agent lacks permission for raises PermissionDenied — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "At least 3 of the 5 MVP skills implemented, each with a passing unit test",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "An agent from Phase 2 invokes a skill only via the registry — test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-04-routing",
+      "title": "Execution routing",
+      "goal": "An intent routes through the autonomy router to an adapter and returns a normalised result.",
+      "status": "todo",
+      "depends_on": [
+        "phase-03-skills"
+      ],
+      "concepts": [
+        "modules/execution.md",
+        "modules/adapters.md",
+        "data-models/tool-registry.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "tool_adapter_base defines execute() → ExecutionResult; local_exec and openclaw stub implement it — tests pass",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "Router picks the adapter named by the tool's registry entry — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "Router refuses to execute an unconfirmed high/critical or never_autonomous action — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "Every execution appends an audit record with intent, tool, autonomy level, confirmation state, result — test reads it back",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-5",
+          "text": "'dry run' produces a plan and result without calling the adapter — test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-05-tool-control",
+      "title": "Tool control",
+      "goal": "Synkage drafts a message in a real app and saves a native note, with confirmation before send.",
+      "status": "todo",
+      "depends_on": [
+        "phase-04-routing"
+      ],
+      "concepts": [
+        "modules/tools.md",
+        "modules/adapters.md",
+        "data-models/tool-registry.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "Browser controller launches Chromium via Playwright and opens a URL — test against a local page passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "WhatsApp Web flow fills a draft and stops at the confirmation prompt; nothing is sent without 'yes' — test with a mock page passes, plus one manual run recorded",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "Gmail flow creates a draft (not sent) — mock-page test passes, plus one manual run recorded",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "'save this as a note' writes a note via the desktop adapter — test passes on the target OS",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-5",
+          "text": "Matching tool entries set enabled: true in tool_registry.json and the status table shows them enabled",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-06-situation",
+      "title": "Situation awareness",
+      "goal": "Autonomy thresholds change with detected situation state.",
+      "status": "todo",
+      "depends_on": [
+        "phase-04-routing"
+      ],
+      "concepts": [
+        "modules/context.md",
+        "modules/brain.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "situation_detector maps fixture signal sets to each of the 5 states — parametrised test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "Same intent gets a different confirmation requirement in Focused vs Idle — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "Never-autonomous and high/critical still require confirmation in every state — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "CLI status shows the current situation state",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-07-memory",
+      "title": "Memory & night cycle",
+      "goal": "State persists across runs and a nightly job updates trust.",
+      "status": "todo",
+      "depends_on": [
+        "phase-04-routing"
+      ],
+      "concepts": [
+        "modules/memory.md",
+        "data-models/memory-store.md",
+        "flows/night-cycle.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "Memory files are created on first run at the chosen location and survive restart — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "night_cycle compresses logs older than N days into a summary — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "night_cycle changes the trust score from logged outcomes — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-4",
+          "text": "scripts/nightly_update.py runs the cycle once and exits 0; apscheduler job registered — test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-08-openclaw",
+      "title": "OpenClaw integration (optional)",
+      "goal": "Synkage delegates execution to OpenClaw safely.",
+      "status": "todo",
+      "depends_on": [
+        "phase-04-routing"
+      ],
+      "concepts": [
+        "services/openclaw-runtime.md",
+        "modules/adapters.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "openclaw_adapter implements tool_adapter_base against the real OpenClaw API — integration test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "An OpenClaw action mapped to high risk still triggers confirmation — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "OpenClaw results pass through the brain verifier — test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    },
+    {
+      "id": "phase-09-avatar",
+      "title": "Avatar layer (locked)",
+      "goal": "Avatar reflects system state without controlling logic.",
+      "status": "todo",
+      "depends_on": [
+        "phase-05-tool-control",
+        "phase-06-situation",
+        "phase-07-memory"
+      ],
+      "concepts": [
+        "modules/avatar.md"
+      ],
+      "acceptance_criteria": [
+        {
+          "id": "ac-1",
+          "text": "state_mapper emits avatar state for each system state — test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-2",
+          "text": "Websocket bridge streams state to a client — integration test passes",
+          "met": false,
+          "evidence": null
+        },
+        {
+          "id": "ac-3",
+          "text": "Avatar has no code path into brain/execution — import-boundary test passes",
+          "met": false,
+          "evidence": null
+        }
+      ]
+    }
+  ]
+}
