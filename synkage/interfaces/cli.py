@@ -2,15 +2,20 @@
 
 from __future__ import annotations
 
+import sys
+from collections.abc import Callable
 from pathlib import Path
 from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 from synkage import __version__
+from synkage.brain.prime import Prime, PrimeResult
 from synkage.config import ConfigError, SynkageConfig, load_config
+from synkage.execution.confirmation_loop import confirm
 from synkage.logging_setup import setup_logging
 
 app = typer.Typer(add_completion=False, help="Synkage — situation-aware execution copilot.")
@@ -46,9 +51,98 @@ def status(ctx: typer.Context) -> None:
 
 
 @app.command()
+def parse(
+    ctx: typer.Context,
+    command: Annotated[str, typer.Argument(help='e.g. "send message to Rahul"')],
+    as_json: Annotated[bool, typer.Option("--json", help="Print the result as JSON.")] = False,
+) -> None:
+    """Parse one command and show the intent and autonomy decision. Executes nothing."""
+    result = Prime(ctx.obj).handle(command)
+    if as_json:
+        print(result.model_dump_json(indent=2))
+    else:
+        render_result(result)
+
+
+@app.command()
+def shell(ctx: typer.Context) -> None:
+    """Interactive loop: parse commands and run the confirmation loop. Executes nothing yet."""
+    prime = Prime(ctx.obj)
+    ask = _make_ask()
+    console.print("Synkage shell — type a command, 'exit' to quit. Nothing is executed until Phase 4.")
+    while True:
+        try:
+            line = ask("synkage> ").strip()
+        except (EOFError, KeyboardInterrupt):
+            break
+        if not line:
+            continue
+        if line.lower() in {"exit", "quit"}:
+            break
+        result = prime.handle(line)
+        render_result(result)
+        d = result.decision
+        if d.may_execute and d.requires_confirmation:
+            outcome = confirm(result.plan_text(), _tool_label(ctx.obj, result), ask, _show)
+            console.print("Confirmed — execution arrives in Phase 4." if outcome.confirmed else "Cancelled.")
+        elif d.may_execute:
+            console.print("Would run without confirmation — execution arrives in Phase 4.")
+
+
+@app.command()
 def version() -> None:
     """Print the Synkage version."""
     console.print(__version__)
+
+
+def _make_ask() -> Callable[[str], str]:
+    if sys.stdin.isatty():
+        from prompt_toolkit import PromptSession
+
+        return PromptSession().prompt
+    return input
+
+
+def _show(text: str) -> None:
+    console.print(text, markup=False, highlight=False)
+
+
+def _tool_label(cfg: SynkageConfig, result: PrimeResult) -> str:
+    tool = cfg.tools.get(result.intent.tool) if result.intent.tool else None
+    return f"{tool.name} ({tool.id})" if tool else "none"
+
+
+def render_result(result: PrimeResult) -> None:
+    i, d = result.intent, result.decision
+    table = Table(title="Intent", title_justify="left", show_header=False)
+    table.add_column("Field")
+    table.add_column("Value")
+    fields = {
+        "verb": i.verb,
+        "object": i.object,
+        "target": i.target,
+        "details": i.details,
+        "content": i.content,
+        "tool": f"{i.tool} (from {i.tool_source.value})" if i.tool and i.tool_source else i.tool,
+        "modifier": i.modifier,
+        "agent directive": i.agent_directive,
+        "mode": i.mode.value,
+    }
+    for name, value in fields.items():
+        if value is not None:
+            table.add_row(name, escape(str(value)))
+    console.print(table)
+    for reason in i.unclear:
+        console.print(f"[yellow]unclear:[/] {escape(reason)}")
+    confirmation = "required" if d.requires_confirmation else "not required"
+    console.print(
+        f"Autonomy: level [bold]{d.level}[/] · risk {d.risk_class} · "
+        f"may execute: {'yes' if d.may_execute else 'no'} · confirmation: {confirmation}"
+    )
+    if d.categories:
+        console.print(f"[red]Never autonomous:[/] {', '.join(d.categories)}")
+    for reason in d.reasons:
+        console.print(f"  - {escape(reason)}")
 
 
 def render_status(cfg: SynkageConfig) -> None:

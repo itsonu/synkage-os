@@ -83,20 +83,33 @@ class AutonomyConfig(_Strict):
 
 class PermissionsConfig(_Strict):
     never_autonomous: list[str]
+    category_keywords: dict[str, list[str]] = Field(default_factory=dict)
 
     @model_validator(mode="after")
     def _check(self) -> PermissionsConfig:
         missing = HARD_NEVER_AUTONOMOUS - set(self.never_autonomous)
         if missing:
             raise ValueError(f"never_autonomous cannot drop hard safety rules: {sorted(missing)}")
+        no_keywords = sorted(c for c in self.never_autonomous if not self.category_keywords.get(c))
+        if no_keywords:
+            raise ValueError(f"category_keywords missing for: {no_keywords}")
+        unknown = sorted(set(self.category_keywords) - set(self.never_autonomous))
+        if unknown:
+            raise ValueError(f"category_keywords for unknown categories: {unknown}")
         return self
 
 
 # --- command_aliases.yaml ---------------------------------------------------
 
 
+class VerbRule(_Strict):
+    needs_target: bool = False
+    needs_tool: bool = False
+
+
 class CommandAliases(_Strict):
-    verbs: list[str]
+    verbs: dict[str, VerbRule]
+    object_types: dict[str, str] = Field(default_factory=dict)
     tool_directives: dict[str, str]
     autonomy_modifiers: dict[str, str]
     agent_directives: list[str] = Field(default_factory=list)

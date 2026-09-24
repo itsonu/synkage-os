@@ -35,3 +35,50 @@ def test_entry_script_boots():
     )
     assert proc.returncode == 0, proc.stderr
     assert "Synkage Core" in proc.stdout
+
+
+def test_parse_json():
+    import json
+
+    result = runner.invoke(app, ["parse", "--json", "send message to Rahul"])
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output)
+    assert data["intent"]["target"] == "Rahul"
+    assert data["decision"]["requires_confirmation"] is True
+
+
+def test_parse_escapes_markup_in_user_text():
+    result = runner.invoke(app, ["parse", "send message to Raj: [red]hi[/red]"])
+    assert result.exit_code == 0
+    assert "[red]hi[/red]" in result.output
+
+
+# --- ac-6: interactive loop -------------------------------------------------------
+
+
+def test_shell_prints_intent_and_autonomy():
+    result = runner.invoke(app, ["shell"], input="send message to Rahul\nno\nexit\n")
+    assert result.exit_code == 0, result.output
+    assert "Rahul" in result.output
+    assert "level 2" in result.output
+    assert "confirmation: required" in result.output
+
+
+def test_shell_confirm_yes_and_no():
+    result = runner.invoke(app, ["shell"], input="send message to Rahul\nyes\nsend message to Rahul\nno\n")
+    assert result.exit_code == 0
+    assert "Plan: send message to Rahul" in result.output
+    assert "Tool: WhatsApp Web (whatsapp_web)" in result.output
+    assert "Confirmed" in result.output
+    assert "Cancelled." in result.output
+
+
+def test_shell_preview_does_not_ask_for_confirmation():
+    result = runner.invoke(app, ["shell"], input="send message\n")
+    assert result.exit_code == 0
+    assert "needs a target" in result.output
+    assert "Type 'yes'" not in result.output
+
+
+def test_shell_exits_on_eof():
+    assert runner.invoke(app, ["shell"], input="").exit_code == 0

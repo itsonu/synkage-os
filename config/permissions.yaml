@@ -10,3 +10,14 @@ never_autonomous:
   - public_posting
   - destructive_file_ops
   - system_config_changes
+
+# Words that flag a command as touching a category (whole-word, case-insensitive).
+# Deliberately broad: a false match only adds a confirmation step.
+# Every never_autonomous category must have at least one keyword.
+category_keywords:
+  payments: [pay, payment, payments, transfer, purchase, buy, invoice, refund, upi, card]
+  account_changes: [account, signup, unsubscribe, deactivate, username, profile]
+  password_handling: [password, passwords, passcode, pin, otp, 2fa, credential, credentials]
+  public_posting: [post, publish, tweet, share, broadcast]
+  destructive_file_ops: [delete, remove, rm, erase, wipe, overwrite, purge]
+  system_config_changes: [registry, sudo, install, uninstall, settings, config, env]

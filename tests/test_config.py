@@ -70,8 +70,24 @@ def test_cannot_drop_hard_safety_rule(config_dir):
 
 
 def test_can_add_safety_rule(config_dir):
-    edit_yaml(config_dir / "permissions.yaml", lambda d: d["never_autonomous"].append("calendar_invites"))
+    def add(d):
+        d["never_autonomous"].append("calendar_invites")
+        d["category_keywords"]["calendar_invites"] = ["invite"]
+
+    edit_yaml(config_dir / "permissions.yaml", add)
     assert "calendar_invites" in load_config(config_dir).permissions.never_autonomous
+
+
+def test_every_category_needs_keywords(config_dir):
+    edit_yaml(config_dir / "permissions.yaml", lambda d: d["category_keywords"].pop("payments"))
+    with pytest.raises(ConfigError, match="category_keywords missing for: \\['payments'\\]"):
+        load_config(config_dir)
+
+
+def test_verb_rules_loaded():
+    verbs = load_config(REPO_ROOT / "config").commands.verbs
+    assert verbs["send"].needs_target and verbs["send"].needs_tool
+    assert not verbs["summarize"].needs_tool
 
 
 def test_unknown_key_rejected(config_dir):

@@ -1,10 +1,35 @@
 # Command vocabulary — source: docs/command_grammar.md
 # Grammar: <action> <object> [target] [options]
-# Parsed by the intent resolver (Phase 1); Phase 0 only loads and validates it.
+# Parsed by synkage/brain/intent_resolver.py.
 
-verbs: [send, reply, create, save, open, find, summarize, plan, generate, execute]
+# Verb -> what the command must name before it can execute.
+# Missing a required part puts the intent in preview mode (never guess).
+# needs_target / needs_tool values are inferred from the README examples.
+verbs:
+  send: {needs_target: true, needs_tool: true}
+  reply: {needs_target: true, needs_tool: true}
+  create: {needs_tool: true}
+  save: {needs_tool: true}
+  open: {needs_tool: true}
+  execute: {needs_tool: true}
+  find: {}
+  summarize: {}
+  plan: {}
+  generate: {}
 
-# "use <directive>" -> tool id in config/tool_registry.json
+# Object noun -> task type in app_preferences.yaml (used when no tool is named).
+object_types:
+  message: messaging
+  msg: messaging
+  email: email
+  mail: email
+  note: notes
+  notes: notes
+  code: code
+  page: web
+  website: web
+
+# "use <directive>" or an inline mention -> tool id in config/tool_registry.json
 tool_directives:
   browser: browser
   sticky notes: sticky_notes
@@ -12,7 +37,7 @@ tool_directives:
   whatsapp: whatsapp_web
   vscode: vscode
 
-# phrase -> autonomy behaviour
+# phrase -> autonomy modifier
 autonomy_modifiers:
   preview only: preview
   ask before send: confirm
