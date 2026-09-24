@@ -2,7 +2,7 @@
 type: Data Model
 title: Tool registry
 description: Registered tools, their kind, execution adapter, risk class, and enabled flag.
-timestamp: 2026-09-24T19:27:24Z
+timestamp: 2026-09-24T19:40:06Z
 sources:
   - config/tool_registry.json
   - config/schema/tool_registry.schema.json
@@ -31,4 +31,4 @@ Top level: `$schema`, `version`, `tools[]`. Validated by the [config loader](../
 See [execution routing](../flows/execution-routing.md).
 
 ## Seeded tools
-browser, whatsapp_web, gmail, sticky_notes, vscode, openclaw.
+browser, whatsapp_web, gmail, sticky_notes (Windows-only, no controller), apple_notes (macOS, Phase 5), vscode, openclaw. All stay `enabled: false` until the [manual checks](../runbooks/phase5-manual-checks.md) pass.

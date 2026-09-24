@@ -127,3 +127,29 @@ def test_run_preview_routes_nothing(audit_log):
     assert result.exit_code == 0
     assert "Execution:" not in result.output
     assert not audit_log.exists()
+
+
+def test_login_rejects_unknown_service():
+    result = runner.invoke(app, ["login", "myspace"])
+    assert result.exit_code == 1
+    assert "Unknown service" in result.output
+
+
+def test_login_opens_pages_and_closes(monkeypatch):
+    from synkage.adapters import local_exec_adapter
+
+    opened = []
+
+    class FakeSession:
+        profile_dir = "/tmp/profile"
+
+        def open(self, url, key, timeout_ms):
+            opened.append(url)
+
+        def close(self):
+            opened.append("closed")
+
+    monkeypatch.setattr(local_exec_adapter, "shared_session", lambda: FakeSession())
+    result = runner.invoke(app, ["login", "whatsapp"], input="\n")
+    assert result.exit_code == 0, result.output
+    assert opened == ["https://web.whatsapp.com/", "closed"]

@@ -125,12 +125,20 @@ def _process(cfg: SynkageConfig, prime: Prime, router: AutonomyRouter, line: str
         return True
     request = load_request(draft)
     d = result.decision
-    confirmation = None
+    confirmation, drafted = None, False
     if result.intent.mode == Mode.execute and d.may_execute and request.ready:
+        staged = router.draft(request, result.intent, d, run_id=delegation.run_id)
+        if staged is not None:
+            render_execution(staged)
+            if staged.status != ExecutionStatus.drafted:
+                return True  # the draft failed; sending would fail the same way
+            drafted = True
         plan = router.planner.plan(request, result.intent, d)
         if plan.requires_confirmation:
             confirmation = confirm(result.plan_text(), _tool_label(cfg, result), ask, _show)
-    execution = router.route(request, result.intent, d, confirmation, run_id=delegation.run_id)
+    execution = router.route(
+        request, result.intent, d, confirmation, run_id=delegation.run_id, drafted=drafted
+    )
     render_execution(execution)
     return True
 
@@ -147,6 +155,31 @@ def skills(ctx: typer.Context) -> None:
         agents = [a for a, allowed in cfg.permissions.agent_skills.items() if name in allowed]
         table.add_row(name, ", ".join(agents) or "none", registry.get(name).description)
     console.print(table)
+
+
+@app.command()
+def login(
+    services: Annotated[list[str] | None, typer.Argument(help="whatsapp, gmail (default: both)")] = None,
+) -> None:
+    """Open Synkage's browser window at WhatsApp Web / Gmail so you can sign in once.
+
+    The login is kept in the browser profile (~/.synkage/browser-profile, outside the
+    repo). Nothing is sent or typed for you.
+    """
+    from synkage.adapters.local_exec_adapter import LOGIN_PAGES, open_login_pages
+
+    which = services or list(LOGIN_PAGES)
+    unknown = [s for s in which if s not in LOGIN_PAGES]
+    if unknown:
+        console.print(f"[red]Unknown service(s):[/] {', '.join(unknown)} (use: {', '.join(LOGIN_PAGES)})")
+        raise typer.Exit(code=1)
+    session = open_login_pages(which)
+    try:
+        input("Sign in in the browser window, then press Enter here to close it... ")
+    except (EOFError, KeyboardInterrupt):
+        pass
+    session.close()
+    console.print(f"Saved login in {session.profile_dir}")
 
 
 @app.command()
@@ -219,6 +252,7 @@ def render_delegation(delegation: DelegationResult) -> None:
 
 STATUS_STYLE = {
     ExecutionStatus.success: "green",
+    ExecutionStatus.drafted: "cyan",
     ExecutionStatus.failed: "red",
     ExecutionStatus.refused: "red",
     ExecutionStatus.unavailable: "yellow",

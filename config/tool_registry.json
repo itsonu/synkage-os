@@ -18,7 +18,7 @@
       "adapter": "local_exec",
       "risk_class": "medium",
       "enabled": false,
-      "notes": "Message draft flow with confirmation before send (Phase 5)."
+      "notes": "Draft first, send only after confirmation (Phase 5). Log in once in the Synkage browser window."
     },
     {
       "id": "gmail",
@@ -27,7 +27,7 @@
       "adapter": "local_exec",
       "risk_class": "medium",
       "enabled": false,
-      "notes": "Email draft flow with confirmation before send (Phase 5)."
+      "notes": "Creates drafts only; never sends (Phase 5). Target must be an email address."
     },
     {
       "id": "sticky_notes",
@@ -36,7 +36,16 @@
       "adapter": "local_exec",
       "risk_class": "low",
       "enabled": false,
-      "notes": "OS-level native note saving (Phase 5)."
+      "notes": "Windows-only; no controller. On macOS notes go to apple_notes."
+    },
+    {
+      "id": "apple_notes",
+      "name": "Apple Notes",
+      "kind": "desktop",
+      "adapter": "local_exec",
+      "risk_class": "low",
+      "enabled": false,
+      "notes": "macOS: creates notes via osascript (Phase 5)."
     },
     {
       "id": "vscode",

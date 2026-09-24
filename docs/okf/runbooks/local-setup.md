@@ -2,14 +2,15 @@
 type: Runbook
 title: Local setup
 description: Install, run, and test Synkage locally.
-timestamp: 2026-09-24T18:48:53Z
+timestamp: 2026-09-24T19:40:06Z
 ---
 
 ## Steps
 ```bash
 python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt ruff
-playwright install            # browser binaries; needed from Phase 5
+playwright install chromium   # browser for WhatsApp/Gmail and the mock-page tests
+python scripts/run_synkage.py login   # sign in once (profile: ~/.synkage/browser-profile)
 cp .env.example .env          # optional overrides
 python scripts/run_synkage.py # prints system state
 python -m pytest -q

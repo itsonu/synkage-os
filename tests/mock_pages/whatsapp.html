@@ -1,0 +1,41 @@
+<!doctype html>
+<!-- Mock of WhatsApp Web, built to the SELECTORS in synkage/tools/browser/whatsapp.py.
+     Proves controller flow only; it is not a copy of the real DOM. -->
+<html><head><title>WhatsApp (mock)</title></head>
+<body>
+  <div contenteditable="true" aria-label="Search input textbox" id="search"></div>
+  <div id="chats"></div>
+  <div id="chat" hidden>
+    <h2 id="chat-title"></h2>
+    <div contenteditable="true" aria-label="Type a message" id="compose"></div>
+    <button aria-label="Send" id="send">Send</button>
+  </div>
+  <ul id="sent"></ul>
+  <script>
+    const CONTACTS = ["Raj", "Rahul Sharma", "Priya", "Priya"];  // two Priyas: ambiguity test
+    const $ = (id) => document.getElementById(id);
+    function openChat(name) { $("chat").hidden = false; $("chat-title").textContent = name; }
+    $("search").addEventListener("input", () => {
+      const q = $("search").innerText.trim().toLowerCase();
+      $("chats").innerHTML = "";
+      CONTACTS.filter((c) => q && c.toLowerCase().includes(q)).forEach((c) => {
+        const s = document.createElement("span");
+        s.title = c; s.textContent = c; s.onclick = () => openChat(c);
+        $("chats").appendChild(s);
+      });
+    });
+    $("send").onclick = () => {
+      const text = $("compose").innerText.trim();
+      if (!text) return;
+      const li = document.createElement("li");
+      li.textContent = $("chat-title").textContent + ": " + text;
+      $("sent").appendChild(li);
+      $("compose").innerText = "";
+    };
+    const params = new URLSearchParams(location.search);
+    if (location.pathname.endsWith("/send") && params.get("phone")) {
+      openChat("+" + params.get("phone"));
+      $("compose").innerText = params.get("text") || "";
+    }
+  </script>
+</body></html>

@@ -12,6 +12,7 @@ jobs:
         with:
           python-version: "3.10"
       - run: pip install -r requirements.txt ruff
+      - run: python -m playwright install --with-deps chromium  # mock-page browser tests
       - run: ruff check .
       - run: ruff format --check .
       - run: python -m pytest -q

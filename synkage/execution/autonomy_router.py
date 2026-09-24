@@ -44,6 +44,43 @@ class AutonomyRouter:
         self.adapters = ADAPTERS if adapters is None else adapters
         self.planner = ActionPlanner(config)
 
+    def draft(
+        self,
+        request: ActionRequest,
+        intent: Intent,
+        decision: AutonomyDecision,
+        run_id: str | None = None,
+    ) -> ExecutionResult | None:
+        """Stage the action before confirmation. None = no draft step for this action."""
+        plan = self.planner.plan(request, intent, decision)
+        if (
+            intent.mode != Mode.execute
+            or not decision.may_execute
+            or plan.blocked
+            or plan.unavailable
+            or plan.nothing_to_do
+            or plan.categories  # never put flagged content into a real app unconfirmed
+            or self.config.autonomy.risk_classes[plan.risk_class].requires_confirmation
+        ):
+            return None
+        adapter_cls = self.adapters.get(plan.adapter or "")
+        if adapter_cls is None:
+            return None
+        adapter = adapter_cls(self.config)
+        if not adapter.supports_draft(plan.tool):
+            return None
+        try:
+            result = adapter.draft(request)
+        except Exception as e:
+            result = ExecutionResult(
+                status=ExecutionStatus.failed,
+                adapter=plan.adapter,
+                tool=plan.tool,
+                message=f"{type(e).__name__}: {e}",
+            )
+        self._audit(plan, intent, decision, None, result, run_id)
+        return result
+
     def route(
         self,
         request: ActionRequest,
@@ -51,9 +88,19 @@ class AutonomyRouter:
         decision: AutonomyDecision,
         confirmation: ConfirmationResult | None = None,
         run_id: str | None = None,
+        drafted: bool = False,
     ) -> ExecutionResult:
         plan = self.planner.plan(request, intent, decision)
         result = self._decide(request, intent, decision, confirmation, plan)
+        if drafted and result.status == ExecutionStatus.refused:
+            adapter_cls = self.adapters.get(plan.adapter or "")
+            if adapter_cls is not None:
+                adapter_cls(self.config).discard(request)
+                result.message += " (draft cleared)"
+        self._audit(plan, intent, decision, confirmation, result, run_id)
+        return result
+
+    def _audit(self, plan, intent, decision, confirmation, result, run_id) -> None:
         self.audit.append(
             AuditRecord(
                 run_id=run_id,
@@ -76,7 +123,6 @@ class AutonomyRouter:
                 result={"status": result.status.value, "message": result.message},
             )
         )
-        return result
 
     def _decide(
         self,

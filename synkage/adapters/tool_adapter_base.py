@@ -36,6 +36,7 @@ class ActionRequest(BaseModel):
 
 class ExecutionStatus(str, Enum):
     success = "success"  # the adapter did it
+    drafted = "drafted"  # a draft is ready in the tool; nothing was sent
     failed = "failed"  # the adapter tried and hit an error
     unavailable = "unavailable"  # no way to run it yet (disabled tool, no controller, stub)
     refused = "refused"  # the router blocked it (safety, confirmation, not ready)
@@ -60,3 +61,15 @@ class ToolAdapter(ABC):
     @abstractmethod
     def execute(self, request: ActionRequest) -> ExecutionResult:
         """Run the request against the backend. Must not raise for expected failures."""
+
+    def supports_draft(self, tool: str | None) -> bool:
+        """True if this adapter can stage the action (e.g. fill a message) without committing it."""
+        return False
+
+    def draft(self, request: ActionRequest) -> ExecutionResult:
+        """Stage the action without committing it. Only called when supports_draft() is True."""
+        raise NotImplementedError
+
+    def discard(self, request: ActionRequest) -> None:
+        """Undo a draft the user declined. Best effort; default does nothing."""
+        return None

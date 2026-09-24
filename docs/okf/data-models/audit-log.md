@@ -2,7 +2,7 @@
 type: Data Model
 title: Audit log
 description: Append-only JSONL record of every routed action.
-timestamp: 2026-09-24T19:27:24Z
+timestamp: 2026-09-24T19:40:06Z
 sources:
   - synkage/execution/audit.py
 ---
@@ -23,7 +23,7 @@ built (Phase 4)
 | `autonomy_level` | From the decision |
 | `risk_class`, `categories` | **As enforced by the router** (re-derived), not as claimed upstream |
 | `confirmation` | `{required, confirmed}`; `confirmed` is null when never asked |
-| `result` | `{status, message}` |
+| `result` | `{status, message}`; `drafted` records a pre-confirmation draft |
 
 The fields match `docs/autonomy_safety.md` (intent, tool, autonomy level, confirmation state, result). The log is only appended to; nothing rewrites it.
 

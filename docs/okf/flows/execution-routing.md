@@ -2,7 +2,7 @@
 type: Flow
 title: Execution routing
 description: How a prepared action draft is gated, routed to an adapter, and audited.
-timestamp: 2026-09-24T19:27:24Z
+timestamp: 2026-09-24T19:40:06Z
 sources:
   - synkage/execution/autonomy_router.py
   - synkage/execution/action_planner.py
@@ -10,6 +10,9 @@ sources:
 
 ## Status
 built (Phase 4)
+
+## Draft step (`AutonomyRouter.draft`, Phase 5)
+Before confirmation, the router may stage the action (fill the WhatsApp message) so the user sees it. It only does this in execute mode with `may_execute`, a ready, enabled, known tool, **no never-autonomous categories and no high/critical risk**, and an adapter that `supports_draft`. The outcome (`drafted` / `failed`) is audited. If the draft fails, the CLI stops before asking. `route(..., drafted=True)` clears the draft when the answer is `no` ("(draft cleared)"). See [ADR-0008](../decisions/0008-macos-tool-control.md).
 
 ## Steps (`AutonomyRouter.route`)
 1. **Plan** ([execution](../modules/execution.md) action planner):

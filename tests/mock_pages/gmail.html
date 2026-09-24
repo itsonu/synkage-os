@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- Mock of Gmail's compose link (?view=cm&to=&su=&body=). Shows "Draft saved"
+     after a moment, like Gmail's autosave. Not a copy of the real DOM. -->
+<html><head><title>Gmail (mock)</title></head>
+<body>
+  <input id="to" aria-label="To recipients">
+  <input id="subject" aria-label="Subject">
+  <div id="body" contenteditable="true" aria-label="Message Body"></div>
+  <span id="status"></span>
+  <script>
+    const p = new URLSearchParams(location.search);
+    document.getElementById("to").value = p.get("to") || "";
+    document.getElementById("subject").value = p.get("su") || "";
+    document.getElementById("body").innerText = p.get("body") || "";
+    if (!location.pathname.includes("broken")) {
+      setTimeout(() => { document.getElementById("status").textContent = "Draft saved"; }, 300);
+    }
+  </script>
+</body></html>

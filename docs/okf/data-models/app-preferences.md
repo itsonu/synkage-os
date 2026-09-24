@@ -2,7 +2,7 @@
 type: Data Model
 title: App preferences
 description: Preferred tool per task type.
-timestamp: 2026-09-24T18:48:53Z
+timestamp: 2026-09-24T19:40:06Z
 sources:
   - config/app_preferences.yaml
 ---
@@ -11,7 +11,7 @@ sources:
 built (Phase 0)
 
 ## Contents
-`preferred_tools`: task type → tool id (messaging → whatsapp_web, email → gmail, notes → sticky_notes, code → vscode, web → browser). Every value must exist in the [tool registry](tool-registry.md). Will feed strategy selection in the [brain](../modules/brain.md).
+`preferred_tools`: task type → tool id (messaging → whatsapp_web, email → gmail, notes → apple_notes on macOS, code → vscode, web → browser). Every value must exist in the [tool registry](tool-registry.md). Will feed strategy selection in the [brain](../modules/brain.md).
 
 ## Unknowns
 Defaults are inferred from README examples; the spec doesn't list preferences explicitly.

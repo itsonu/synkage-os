@@ -33,6 +33,7 @@ object_types:
 tool_directives:
   browser: browser
   sticky notes: sticky_notes
+  apple notes: apple_notes
   gmail: gmail
   whatsapp: whatsapp_web
   vscode: vscode

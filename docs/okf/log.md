@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-09-24T19:40:06Z — Phase 5 (Tool control), automated part
+- New: [ADR-0008](decisions/0008-macos-tool-control.md), [WhatsApp Web](services/whatsapp-web.md), [Gmail](services/gmail.md), [Apple Notes](services/apple-notes.md), [manual checks runbook](runbooks/phase5-manual-checks.md).
+- Built: [tools](modules/tools.md). Updated: [adapters](modules/adapters.md) (handlers, draft/discard), [execution routing](flows/execution-routing.md) + [execution](modules/execution.md) (draft step), [CLI](modules/cli.md) (`login`, draft in `run`), [tool registry](data-models/tool-registry.md), [app preferences](data-models/app-preferences.md), [command vocabulary](data-models/command-vocabulary.md), [audit log](data-models/audit-log.md), [confirmation loop](flows/confirmation-loop.md), [local setup](runbooks/local-setup.md).
+
 ## 2026-09-24T19:27:24Z — Phase 4 (Routing)
 - New: [execution routing](flows/execution-routing.md), [audit log](data-models/audit-log.md).
 - Built: [adapters](modules/adapters.md), [execution](modules/execution.md) (action planner, router, audit).

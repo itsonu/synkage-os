@@ -2,7 +2,7 @@
 type: Module
 title: Interface layer
 description: User input and output surfaces: CLI now; hotkeys and voice later.
-timestamp: 2026-09-24T18:58:38Z
+timestamp: 2026-09-24T19:40:06Z
 sources:
   - synkage/interfaces/__init__.py
 ---

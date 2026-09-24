@@ -8,6 +8,8 @@
 
 **Built in Phase 2:** [agents](agents.md) (planner, builder, reporter)
 
+**Built in Phase 5:** [tools](tools.md) (browser session, WhatsApp, Gmail, Apple Notes controllers)
+
 **Built in Phase 4:** [adapters](adapters.md) (contract, local_exec, openclaw stub), [execution](execution.md) (planner, router, audit)
 
 **Built in Phase 3:** [skills](skills.md) (registry, permission gating, plan_steps, classify_intent, format_note)

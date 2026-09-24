@@ -36,8 +36,8 @@ def test_verb_is_case_insensitive(resolve):
     [
         ("reply email last thread", "reply", "email", "last thread", None, "gmail"),
         ("reply to that email about downtime", "reply", "email", "about downtime", None, "gmail"),
-        ("save this as a note", "save", "note", None, "this", "sticky_notes"),
-        ("save note meeting at 4pm", "save", "note", None, "meeting at 4pm", "sticky_notes"),
+        ("save this as a note", "save", "note", None, "this", "apple_notes"),
+        ("save note meeting at 4pm", "save", "note", None, "meeting at 4pm", "apple_notes"),
         ("open vscode and search auth bug", "open", "vscode", None, "search auth bug", "vscode"),
         (
             "create image maintenance banner use browser",

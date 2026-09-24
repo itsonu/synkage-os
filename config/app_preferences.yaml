@@ -4,6 +4,6 @@
 preferred_tools:
   messaging: whatsapp_web
   email: gmail
-  notes: sticky_notes
+  notes: apple_notes  # macOS (primary OS); sticky_notes is Windows-only
   code: vscode
   web: browser

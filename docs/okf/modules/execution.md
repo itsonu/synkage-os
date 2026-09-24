@@ -2,7 +2,7 @@
 type: Module
 title: Execution routing layer
 description: Plans, gates, routes and audits every prepared action.
-timestamp: 2026-09-24T19:27:24Z
+timestamp: 2026-09-24T19:40:06Z
 sources:
   - synkage/execution/__init__.py
   - synkage/execution/confirmation_loop.py
@@ -19,7 +19,7 @@ in-progress — confirmation loop (Phase 1); action planner, autonomy router and
 |---|---|
 | `confirmation_loop.py` | `confirm(plan, tool_target, ask, show)`; only `yes` confirms. See [confirmation loop](../flows/confirmation-loop.md) |
 | `action_planner.py` | `ActionPlanner.plan(request, intent, decision) -> ExecutionPlan` (tool, adapter from the registry, risk, categories, `requires_confirmation`, blocked/unavailable/nothing-to-do). **Re-derives safety** instead of trusting the decision |
-| `autonomy_router.py` | `AutonomyRouter.route(request, intent, decision, confirmation, run_id)`: the only place an action may run. `load_request(path)` reads a draft artifact file |
+| `autonomy_router.py` | `AutonomyRouter.draft(...)` stages safe actions before confirmation; `AutonomyRouter.route(request, intent, decision, confirmation, run_id, drafted)` is the only place an action may run. `load_request(path)` reads a draft artifact file |
 | `audit.py` | Append-only [audit log](../data-models/audit-log.md) |
 
 Full order of checks: [execution routing](../flows/execution-routing.md).
