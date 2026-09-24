@@ -37,6 +37,11 @@ class BuilderAgent(BaseAgent):
             "ready": not missing,
             "missing": missing,
         }
+        if draft["ready"] and plan.get("task_type") == "notes":
+            text = i.content or i.details or ""
+            if text.strip():
+                note = self.skills.call("format_note", text=text)
+                draft["note"] = {"title": note.title, "markdown": note.markdown}
         where = f" via {tool.name}" if tool else ""
         state = "ready" if draft["ready"] else "not ready: " + "; ".join(missing)
         return f"{i.verb} {i.object or ''}{where} — {state}".replace("  ", " "), draft

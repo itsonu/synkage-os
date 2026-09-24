@@ -84,6 +84,7 @@ class AutonomyConfig(_Strict):
 class PermissionsConfig(_Strict):
     never_autonomous: list[str]
     category_keywords: dict[str, list[str]] = Field(default_factory=dict)
+    agent_skills: dict[str, list[str]] = Field(default_factory=dict)  # agent -> allowed skills
 
     @model_validator(mode="after")
     def _check(self) -> PermissionsConfig:

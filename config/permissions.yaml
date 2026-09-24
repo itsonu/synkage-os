@@ -21,3 +21,10 @@ category_keywords:
   public_posting: [post, publish, tweet, share, broadcast]
   destructive_file_ops: [delete, remove, rm, erase, wipe, overwrite, purge]
   system_config_changes: [registry, sudo, install, uninstall, settings, config, env]
+
+# Which skills each agent may call (default deny: unlisted agent = no skills).
+# Enforced by synkage/skills/registry.py; names must match registered skills.
+agent_skills:
+  planner: [plan_steps, classify_intent]
+  builder: [format_note]
+  reporter: []

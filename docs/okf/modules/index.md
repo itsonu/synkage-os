@@ -7,3 +7,5 @@
 **Built in Phase 1:** [intent resolver](intent-resolver.md) · [autonomy guard](autonomy-guard.md) (brain); confirmation loop in [execution](execution.md)
 
 **Built in Phase 2:** [agents](agents.md) (planner, builder, reporter)
+
+**Built in Phase 3:** [skills](skills.md) (registry, permission gating, plan_steps, classify_intent, format_note)

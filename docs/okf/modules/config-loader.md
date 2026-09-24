@@ -2,7 +2,7 @@
 type: Module
 title: Config loader
 description: Loads and validates every file in config/ into a typed SynkageConfig.
-timestamp: 2026-09-24T19:11:34Z
+timestamp: 2026-09-24T19:17:25Z
 sources:
   - synkage/config.py
 ---
@@ -25,6 +25,7 @@ built (Phase 0)
 - `never_autonomous` may add categories, never drop a built-in one ([ADR-0002](../decisions/0002-bounded-autonomy.md)).
 - Every never-autonomous category has at least one `category_keywords` entry, and no keywords exist for unknown categories.
 - Verbs are a map of `VerbRule {needs_target, needs_tool}`.
+- `permissions.agent_skills` is an agent → skill-names map. Names are checked against the registry by `tests/test_skill_registry.py`, not at load time (config doesn't import the skills layer).
 - Tool ids unique; every tool's `risk_class` exists.
 - Every preferred tool and every `use <x>` directive points at a registered tool.
 

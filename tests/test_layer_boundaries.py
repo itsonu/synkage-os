@@ -29,6 +29,13 @@ def imports(path: Path) -> set[str]:
     return names
 
 
+def test_agents_reach_skills_only_through_the_registry():
+    allowed = {"synkage.skills.registry"}
+    for py in (PKG / "agents").rglob("*.py"):
+        direct = {m for m in imports(py) if m.startswith("synkage.skills") and m not in allowed}
+        assert not direct, f"{py.relative_to(PKG.parent)} imports skills directly: {sorted(direct)}"
+
+
 @pytest.mark.parametrize("layer", sorted(FORBIDDEN))
 def test_layer_does_not_import_forbidden_layers(layer):
     for py in (PKG / layer).rglob("*.py"):

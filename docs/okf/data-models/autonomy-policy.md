@@ -2,7 +2,7 @@
 type: Data Model
 title: Autonomy policy
 description: Autonomy levels, risk classes, and hard never-autonomous categories.
-timestamp: 2026-09-24T18:58:38Z
+timestamp: 2026-09-24T19:17:25Z
 sources:
   - config/autonomy_levels.yaml
   - config/permissions.yaml
@@ -16,5 +16,6 @@ built — enforced by the [autonomy guard](../modules/autonomy-guard.md) (Phase 
 - **Risk classes:** low · medium · high · critical. High and critical always require confirmation.
 - **Never autonomous** (`permissions.yaml`): payments, account_changes, password_handling, public_posting, destructive_file_ops, system_config_changes.
 - **Category keywords** (`permissions.yaml`): whole-word triggers per category. Every category must have at least one. Deliberately broad — a false match only adds a confirmation. *(Keyword approach inferred; spec names categories only.)*
+- **Agent skills** (`permissions.yaml` `agent_skills`): agent → skills it may call. Default deny. Enforced by the [skill registry](../modules/skills.md). *(Spec says skills are "permission-gated" but doesn't say how; per-agent allow-lists are inferred.)*
 
 Source doc: `docs/autonomy_safety.md`. Rationale: [ADR-0002](../decisions/0002-bounded-autonomy.md). Enforced by the [brain](../modules/brain.md) and [execution](../modules/execution.md) layers.

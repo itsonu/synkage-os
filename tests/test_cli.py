@@ -97,3 +97,11 @@ def test_shell_shows_report_before_confirmation():
     assert result.exit_code == 0
     out = result.output
     assert out.index("Ready: send message to Rahul") < out.index("Type 'yes'")
+
+
+def test_skills_command_lists_skills_and_permissions():
+    result = runner.invoke(app, ["skills"])
+    assert result.exit_code == 0, result.output
+    for name in ("plan_steps", "classify_intent", "format_note"):
+        assert name in result.output
+    assert "builder" in result.output

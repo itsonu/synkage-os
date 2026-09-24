@@ -2,7 +2,7 @@
 type: Flow
 title: Agent chain
 description: How Prime picks agents and chains them through files.
-timestamp: 2026-09-24T19:11:34Z
+timestamp: 2026-09-24T19:17:25Z
 sources:
   - synkage/brain/prime.py
 ---
@@ -26,6 +26,8 @@ built (Phase 2)
 4. Return `DelegationResult(run_id, run_dir, chain, results, notes)`. `.artifact` is the last agent's file, and only when every agent succeeded.
 
 Delegation only prepares (plans, drafts, reports). It runs at levels 1–3 and never needs confirmation, because nothing is executed. Confirmation comes afterwards, in the [confirmation loop](confirmation-loop.md).
+
+Prime creates one [skill registry](../modules/skills.md) and passes it to every agent in the chain.
 
 ## Connections
 Called from the [brain](../modules/brain.md). Uses the [agents](../modules/agents.md). Part of the [command pipeline](command-pipeline.md).

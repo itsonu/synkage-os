@@ -22,6 +22,7 @@ from synkage.agents.registry import AGENTS
 from synkage.brain.autonomy_guard import AutonomyDecision, AutonomyGuard
 from synkage.brain.intent_resolver import Intent, IntentResolver, Mode
 from synkage.config import SynkageConfig, resolve_runs_dir
+from synkage.skills.registry import SkillRegistry
 
 FULL_CHAIN = ["planner", "builder", "reporter"]
 PLAN_CHAIN = ["planner", "reporter"]
@@ -87,6 +88,7 @@ class Prime:
         self.runs_dir = resolve_runs_dir(runs_dir)
         self.resolver = IntentResolver(config)
         self.guard = AutonomyGuard(config)
+        self.skills = SkillRegistry(config)
 
     def handle(self, text: str) -> PrimeResult:
         intent = self.resolver.resolve(text)
@@ -111,7 +113,7 @@ class Prime:
                 inputs=list(inputs),
                 output=run_dir / f"{n:02d}-{name}.json",
             )
-            agent_result = AGENTS[name](self.config).run(task)
+            agent_result = AGENTS[name](self.config, self.skills).run(task)
             out.results.append(agent_result)
             if agent_result.status != TaskStatus.done:
                 break

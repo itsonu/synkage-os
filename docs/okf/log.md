@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-09-24T19:17:25Z — Phase 3 (Skills)
+- Built: [skills](modules/skills.md) (base class, registry with default-deny permissions, plan_steps, classify_intent, format_note).
+- Updated: [agents](modules/agents.md) (planner/builder call skills via the registry), [autonomy policy](data-models/autonomy-policy.md) (`agent_skills`), [config loader](modules/config-loader.md), [CLI](modules/cli.md) (`skills`), [agent chain](flows/agent-chain.md), [agent artifact](data-models/agent-artifact.md), [command pipeline](flows/command-pipeline.md).
+
 ## 2026-09-24T19:11:34Z — Phase 2 (Agents)
 - New: [agent artifact](data-models/agent-artifact.md), [agent chain](flows/agent-chain.md).
 - Updated: [agents](modules/agents.md) (built), [brain](modules/brain.md) (`Prime.delegate`), [CLI](modules/cli.md) (`prepare`, shell prepares before confirming), [config loader](modules/config-loader.md) (`resolve_runs_dir`), [command pipeline](flows/command-pipeline.md).

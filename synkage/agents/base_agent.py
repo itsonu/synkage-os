@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field, ValidationError
 from synkage.brain.autonomy_guard import AutonomyDecision
 from synkage.brain.intent_resolver import Intent
 from synkage.config import SynkageConfig
+from synkage.skills.registry import SkillRegistry
 
 
 class TaskStatus(str, Enum):
@@ -74,8 +75,11 @@ class BaseAgent(ABC):
     name: ClassVar[str]
     kind: ClassVar[str]  # artifact kind this agent produces, e.g. "plan"
 
-    def __init__(self, config: SynkageConfig):
+    def __init__(self, config: SynkageConfig, skills: SkillRegistry | None = None):
         self.config = config
+        # Skills are reached only through the registry, bound to this agent's name,
+        # so every call is permission-checked.
+        self.skills = (skills or SkillRegistry(config)).for_agent(self.name)
 
     def tool_name(self, tool_id: str | None) -> str | None:
         tool = self.config.tools.get(tool_id) if tool_id else None

@@ -18,6 +18,7 @@ from synkage.brain.prime import DelegationResult, Prime, PrimeResult
 from synkage.config import ConfigError, SynkageConfig, load_config
 from synkage.execution.confirmation_loop import confirm
 from synkage.logging_setup import setup_logging
+from synkage.skills.registry import SkillRegistry
 
 app = typer.Typer(add_completion=False, help="Synkage — situation-aware execution copilot.")
 console = Console()
@@ -107,6 +108,20 @@ def shell(ctx: typer.Context) -> None:
             console.print("Confirmed — execution arrives in Phase 4." if outcome.confirmed else "Cancelled.")
         elif d.may_execute:
             console.print("Would run without confirmation — execution arrives in Phase 4.")
+
+
+@app.command()
+def skills(ctx: typer.Context) -> None:
+    """List registered skills and which agents may call them."""
+    cfg: SynkageConfig = ctx.obj
+    registry = SkillRegistry(cfg)
+    table = Table(title="Skills", title_justify="left")
+    for col in ("Skill", "Allowed agents", "Description"):
+        table.add_column(col)
+    for name in registry.names():
+        agents = [a for a, allowed in cfg.permissions.agent_skills.items() if name in allowed]
+        table.add_row(name, ", ".join(agents) or "none", registry.get(name).description)
+    console.print(table)
 
 
 @app.command()

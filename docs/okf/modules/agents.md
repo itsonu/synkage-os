@@ -2,7 +2,7 @@
 type: Module
 title: Agent layer
 description: Specialist reasoning workers that chain through files and invoke skills.
-timestamp: 2026-09-24T19:11:34Z
+timestamp: 2026-09-24T19:17:25Z
 sources:
   - synkage/agents/__init__.py
   - synkage/agents/base_agent.py
@@ -13,19 +13,20 @@ sources:
 ---
 
 ## Status
-in-progress — contract plus planner, builder, reporter built in [Phase 2](../../phases/phase-02-agents.md). Researcher and critic not built. Skills arrive in [Phase 3](../../phases/phase-03-skills.md).
+in-progress — contract plus planner, builder, reporter built in [Phase 2](../../phases/phase-02-agents.md). Researcher and critic not built. Since [Phase 3](../../phases/phase-03-skills.md) the planner and builder call [skills](skills.md).
 
 ## Contract (`base_agent.py`)
 - `AgentTask(id, agent, intent, decision, inputs: list[Path], output: Path)`: the only thing an agent receives.
 - `BaseAgent.run(task) -> AgentResult(task_id, agent, status: done|failed, output, error)`. It reads `inputs` from disk, calls the subclass's `produce()`, and writes an [agent artifact](../data-models/agent-artifact.md) to `output` atomically.
 - Failures never raise. A wrong agent name, a missing or invalid input, or an exception in `produce()` all become `status=failed` with an `error`, and no output file is written.
 - Subclasses set `name` and `kind`, then implement `produce(task, inputs) -> (summary, body)`.
+- Constructor: `Agent(config, skills: SkillRegistry | None)`. `self.skills` is a registry client bound to the agent's name; it's the only way to reach skills. A `PermissionDenied` inside `produce()` fails the task like any other error.
 
 ## Agents
 | Agent | Artifact `kind` | Does |
 |---|---|---|
-| planner | `plan` | Rule-based step templates per verb; `blocked` lists the reasons for a preview |
-| builder | `action_draft` | Needs exactly one `plan` input; builds the payload the router will execute in Phase 4 (tool, adapter, target, content, steps, `ready`, `missing`) |
+| planner | `plan` | Steps from the `plan_steps` skill, `task_type` from `classify_intent`; `blocked` lists the reasons for a preview |
+| builder | `action_draft` | Needs exactly one `plan` input; builds the payload the router will execute in Phase 4 (tool, adapter, target, content, steps, `ready`, `missing`). For ready `notes` tasks it adds `note` (title, markdown) via `format_note` |
 | reporter | `report` | Writes a brief text: ready or not, confirmation needed, safety flags, steps, "Nothing was executed" |
 
 `registry.AGENTS` maps each name to its class. [Prime](brain.md) picks the chain; see [agent chain](../flows/agent-chain.md).
