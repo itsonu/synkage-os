@@ -3,14 +3,14 @@
 _Rewritten at the end of every session. This is the cold-start resume point._
 
 - **Project status:** in_progress
-- **Active phase:** phase-01-brain — see [phase file](../phases/phase-01-brain.md)
-- **Next action:** Create `synkage/brain/intent_resolver.py` with a pydantic `Intent` model and a parser for `<action> <object> [target] [options]` that uses the loaded `CommandAliases`; first test: `send message to Rahul` → verb=send, object=message, target=Rahul (phase-01 ac-1).
+- **Active phase:** phase-02-agents — see [phase file](../phases/phase-02-agents.md)
+- **Next action:** Create `synkage/agents/base_agent.py` with a pydantic task contract (`AgentTask`: intent, input artifacts, output artifact path; `AgentResult`: status, artifact path) and an abstract `BaseAgent.run(task)`; first test checks the contract validates and a trivial subclass writes its artifact (phase-02 ac-1). Decide the artifact directory first (suggest a per-task folder under a gitignored `runs/`).
 
 ## In progress
-Nothing mid-flight. Phase 0 is done.
+Nothing mid-flight. Phases 0–1 are done.
 
 ## Blockers
-None for Phase 1.
+None for Phase 2.
 
 ## Open questions / unknowns
 Do not guess these — ask the user when the phase that needs them starts.
@@ -23,8 +23,7 @@ Do not guess these — ask the user when the phase that needs them starts.
 7. **Hotkeys / voice stub:** listed in `docs/proj.md` but not in any phase.
 
 ## Recent evidence
-- `python -m pytest -q` → 17 passed.
-- `python scripts/run_synkage.py` → exit 0, prints system state.
-- `ruff check .` / `ruff format --check .` clean.
-- `python docs/okf/.tools/okf_lint.py --repo . --bundle docs/okf` → 0 errors.
-- `python scripts/phases_status.py` → exit 0, current phase phase-01-brain.
+- `python -m pytest -q` → 106 passed.
+- `python scripts/run_synkage.py parse "send message to Rahul"` → verb send / object message / target Rahul, level 2, confirmation required.
+- `python scripts/run_synkage.py shell` → confirmation loop accepts only `yes` (tested via CliRunner and a real pty).
+- `ruff check .` / `ruff format --check .` clean; OKF lint 0 errors; `phases_status.py` → current phase phase-02-agents.

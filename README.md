@@ -212,11 +212,12 @@ config/app_preferences.yaml
 Start Synkage CLI:
 
 ```bash
-python scripts/run_synkage.py            # prints system state (config, autonomy, tools)
-python scripts/run_synkage.py --help
+python scripts/run_synkage.py                                # system state (config, autonomy, tools)
+python scripts/run_synkage.py parse "send message to Rahul"  # parsed intent + autonomy decision
+python scripts/run_synkage.py shell                          # interactive loop with confirmation
 ```
 
-Today the CLI loads and validates config and prints system state. Command execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
+Today commands are parsed and gated (autonomy level, risk, confirmation) but nothing is executed yet. Execution arrives in later phases — see [`docs/phases/`](docs/phases/index.md).
 
 Contributors and AI agents: start with [`CLAUDE.md`](CLAUDE.md).
 

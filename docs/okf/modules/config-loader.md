@@ -2,7 +2,7 @@
 type: Module
 title: Config loader
 description: Loads and validates every file in config/ into a typed SynkageConfig.
-timestamp: 2026-09-24T18:48:53Z
+timestamp: 2026-09-24T18:58:38Z
 sources:
   - synkage/config.py
 ---
@@ -22,6 +22,8 @@ built (Phase 0)
 - Levels must be exactly 0–3; `default_level` must be one of them.
 - Risk classes `high` and `critical` must exist and require confirmation.
 - `never_autonomous` may add categories, never drop a built-in one ([ADR-0002](../decisions/0002-bounded-autonomy.md)).
+- Every never-autonomous category has at least one `category_keywords` entry, and no keywords exist for unknown categories.
+- Verbs are a map of `VerbRule {needs_target, needs_tool}`.
 - Tool ids unique; every tool's `risk_class` exists.
 - Every preferred tool and every `use <x>` directive points at a registered tool.
 
@@ -29,4 +31,4 @@ built (Phase 0)
 [autonomy policy](../data-models/autonomy-policy.md), [command vocabulary](../data-models/command-vocabulary.md), [app preferences](../data-models/app-preferences.md), [tool registry](../data-models/tool-registry.md).
 
 ## Used by
-[CLI](cli.md); later the [brain](brain.md) and [execution](execution.md) layers.
+[CLI](cli.md), [intent resolver](intent-resolver.md), [autonomy guard](autonomy-guard.md).

@@ -1,7 +1,7 @@
 {
   "project": "synkage-core",
   "created": "2026-09-24T18:48:00Z",
-  "current_phase": "phase-01-brain",
+  "current_phase": "phase-02-agents",
   "status": "in_progress",
   "mvp_complete_after": [
     "phase-01-brain",
@@ -82,7 +82,7 @@
       "id": "phase-01-brain",
       "title": "Brain layer",
       "goal": "Commands parse into structured intents and the autonomy guard decides when confirmation is needed.",
-      "status": "todo",
+      "status": "done",
       "depends_on": [
         "phase-00-foundation"
       ],
@@ -97,38 +97,38 @@
         {
           "id": "ac-1",
           "text": "'send message to Rahul' parses to Intent(verb=send, object=message, target=Rahul) — unit test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_intent_resolver.py::test_send_message_to_rahul (+ test_documented_examples, 7 README/grammar cases)"
         },
         {
           "id": "ac-2",
           "text": "'use gmail' resolves to tool id gmail via command_aliases.yaml; 'dry run' / 'preview only' / 'ask before send' / 'auto execute' set the intent's autonomy modifier — unit tests pass",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_intent_resolver.py::test_use_gmail_directive, ::test_autonomy_modifiers[4 cases], ::test_modifier_and_directive_together"
         },
         {
           "id": "ac-3",
           "text": "A command with unclear tool or target yields mode=preview (never execute) — unit test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_intent_resolver.py::test_unclear_commands_go_to_preview[6 cases], ::test_modifier_after_unknown_tool_does_not_hide_it"
         },
         {
           "id": "ac-4",
           "text": "autonomy_guard returns requires_confirmation=True for every never_autonomous category and for high/critical risk at every level — parametrised test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_autonomy_guard.py::test_never_autonomous_requires_confirmation_at_every_level[24 cases], ::test_high_and_critical_risk_require_confirmation_at_every_level[8 cases]"
         },
         {
           "id": "ac-5",
           "text": "Confirmation loop shows plan + tool target and proceeds only on explicit 'yes' — test with scripted input covers yes/no/empty",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_confirmation_loop.py (12 tests: yes/no/empty/'y'/EOF/Ctrl-C, plan+tool shown first); tests/test_cli.py::test_shell_confirm_yes_and_no"
         },
         {
           "id": "ac-6",
           "text": "Interactive CLI loop (prompt-toolkit) reads a command and prints the parsed intent and required autonomy — CliRunner/scripted-input test passes",
-          "met": false,
-          "evidence": null
+          "met": true,
+          "evidence": "tests/test_cli.py::test_shell_prints_intent_and_autonomy (+3 shell tests); prompt-toolkit TTY path checked manually in a pty: prompt, plan, 'Confirmed' all shown"
         }
       ]
     },

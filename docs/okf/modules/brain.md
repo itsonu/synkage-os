@@ -2,13 +2,16 @@
 type: Module
 title: Brain layer
 description: Decision engine: intent, situation, autonomy level, strategy, verification.
-timestamp: 2026-09-24T18:48:53Z
+timestamp: 2026-09-24T18:58:38Z
 sources:
   - synkage/brain/__init__.py
+  - synkage/brain/prime.py
+  - synkage/brain/intent_resolver.py
+  - synkage/brain/autonomy_guard.py
 ---
 
 ## Status
-scaffolded — package exists; logic planned for [Phase 1](../../phases/phase-01-brain.md) and [Phase 6](../../phases/phase-06-situation.md).
+in-progress — intent resolver, autonomy guard, and Prime skeleton built in [Phase 1](../../phases/phase-01-brain.md). Situation detector ([Phase 6](../../phases/phase-06-situation.md)), priority resolver, verifier, and agent delegation (Phase 2) still planned.
 
 ## Responsibilities
 - Resolve intent from a command (see [command grammar](../apis/command-grammar.md)).
@@ -19,8 +22,13 @@ scaffolded — package exists; logic planned for [Phase 1](../../phases/phase-01
 
 **Never executes tools directly** ([ADR-0001](../decisions/0001-layered-decision-execution-split.md)).
 
-## Planned files
-`prime.py`, `intent_resolver.py`, `situation_detector.py`, `priority_resolver.py`, `autonomy_guard.py`, `verifier.py` under `synkage/brain/`.
+## Files
+| File | Status |
+|---|---|
+| `prime.py` | built — `Prime.handle(text) -> PrimeResult(intent, decision)`; `delegate()` raises until Phase 2 |
+| `intent_resolver.py` | built — see [intent resolver](intent-resolver.md) |
+| `autonomy_guard.py` | built — see [autonomy guard](autonomy-guard.md) |
+| `situation_detector.py`, `priority_resolver.py`, `verifier.py` | planned |
 
 ## Connections
 Reads signals from [context](context.md). Uses `HARD_NEVER_AUTONOMOUS` from the [config loader](config-loader.md). Part of the [command pipeline](../flows/command-pipeline.md).

@@ -25,6 +25,8 @@ pip install -r requirements.txt ruff       # setup (inside a venv)
 playwright install                         # browser binaries; needed from Phase 5
 python scripts/run_synkage.py              # run: load config, print system state (= python -m synkage)
 python scripts/run_synkage.py --log-level DEBUG --config-dir path/to/config status
+python scripts/run_synkage.py parse "send message to Rahul" [--json]   # intent + autonomy decision
+python scripts/run_synkage.py shell        # interactive loop with confirmation; executes nothing yet
 python -m pytest -q                        # all tests
 python -m pytest tests/test_config.py::test_cannot_drop_hard_safety_rule   # single test
 ruff check . && ruff format --check .      # lint + format check
@@ -45,6 +47,7 @@ Pipeline: `interfaces → context → brain → agents → skills → execution 
 - Runtime config lives in root `config/`, including `tool_registry.json`.
 - `synkage/config.py` loads and validates every file in `config/` into one typed `SynkageConfig`. Any failure raises `ConfigError`, and the CLI exits 1.
 - `synkage/interfaces/cli.py` is the Typer app. Its callback loads config for every command and puts it on `ctx.obj`.
+- Command flow today: `Prime.handle(text)` (`synkage/brain/prime.py`) → `IntentResolver.resolve` → `Intent` → `AutonomyGuard.decide` → `AutonomyDecision`. Callers check `may_execute` first, then run `execution/confirmation_loop.confirm` if `requires_confirmation`. The interface layer injects `ask`/`show` so the rule stays out of the UI.
 
 ### Layer boundaries (invariants — keep them)
 | Layer | Owns | Must NOT |
@@ -70,7 +73,7 @@ External runtimes such as OpenClaw are reached only through adapters and remain 
 - Situation detection uses rules over signals, not a model ([ADR-0003](docs/okf/decisions/0003-rule-based-situation-detection.md)).
 
 ### Command grammar (`docs/command_grammar.md`)
-`<action> <object> [target] [options]`. The vocabulary (verbs, `use <tool>` directives, autonomy modifiers, agent directives) is in `config/command_aliases.yaml`. Every tool directive must resolve to a tool id in the registry.
+`<action> <object> [target] [options]`, with message content after the first `:`. The vocabulary lives in `config/command_aliases.yaml`: per-verb `needs_target`/`needs_tool` rules, object noun → task type, `use <tool>` directives, autonomy modifiers and agent directives. Tools resolve in this order: `use X` directive > inline mention > preferred tool for the object's task type. Safety categories are matched by whole-word keywords in `config/permissions.yaml`.
 
 ## How to work this repo (autonomy loop)
 1. Read this file, then `docs/context/state.md` to find the active phase and the next action.
