@@ -54,6 +54,12 @@ class DelegationResult(BaseModel):
     def ok(self) -> bool:
         return bool(self.results) and all(r.status == TaskStatus.done for r in self.results)
 
+    def output_of(self, agent: str) -> Path | None:
+        """Artifact path written by `agent` in this run, if it succeeded."""
+        return next(
+            (r.output for r in self.results if r.agent == agent and r.status == TaskStatus.done), None
+        )
+
     @property
     def artifact(self) -> Path | None:
         """The last agent's artifact — the one to show the user."""

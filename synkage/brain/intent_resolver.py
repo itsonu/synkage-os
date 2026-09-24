@@ -79,6 +79,7 @@ class IntentResolver:
         head, _, content = text.partition(":")
         intent.content = content.strip() or None
         head = " ".join(head.split())
+        self._check_modifier_in_content(intent)
 
         head = self._take_options(head, intent)
 
@@ -101,6 +102,19 @@ class IntentResolver:
         return self._finish(intent)
 
     # --- steps --------------------------------------------------------------
+
+    def _check_modifier_in_content(self, intent: Intent) -> None:
+        """Options after ':' are message text and never apply. But a *safer* modifier at
+        the end of the content ("...: hi dry run") means the user probably expects it
+        to apply. Running normally would surprise them, so go to preview instead.
+        Loosening modifiers ("auto execute") in content are simply ignored.
+        """
+        if not intent.content:
+            return
+        safer = [p for p, v in self.cmd.autonomy_modifiers.items() if v != "auto"]
+        found = _find_phrase(intent.content, safer)
+        if found and not intent.content[found[1].end() :].strip(" .!"):
+            intent.unclear.append(f"'{found[0]}' is inside the message text; put options before ':'")
 
     def _take_options(self, head: str, intent: Intent) -> str:
         modifiers = []

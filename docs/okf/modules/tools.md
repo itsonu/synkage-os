@@ -2,7 +2,7 @@
 type: Module
 title: Tool layer
 description: Browser and desktop controllers that perform real actions.
-timestamp: 2026-09-24T18:48:53Z
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - synkage/tools/__init__.py
 ---
@@ -12,6 +12,8 @@ scaffolded — controllers planned for [Phase 5](../../phases/phase-05-tool-cont
 
 ## Responsibilities
 Perform real-world actions and return results. No decision logic. Browser automation uses Playwright ([ADR-0007](../decisions/0007-playwright-browser-automation.md)).
+
+Controllers will register in `synkage/adapters/local_exec_adapter.CONTROLLERS[tool_id]`, so the [local exec adapter](adapters.md) can dispatch to them.
 
 ## Planned folders
 `browser/`, `desktop/`, `fallback/`. The registry itself lives in `config/` ([ADR-0006](../decisions/0006-package-layout.md)), described by [tool registry](../data-models/tool-registry.md).

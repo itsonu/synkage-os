@@ -1,23 +1,28 @@
 ---
 type: Module
 title: Execution routing layer
-description: Maps tasks to adapters and enforces autonomy policy, confirmation, and rollback.
-timestamp: 2026-09-24T18:58:38Z
+description: Plans, gates, routes and audits every prepared action.
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - synkage/execution/__init__.py
   - synkage/execution/confirmation_loop.py
+  - synkage/execution/action_planner.py
+  - synkage/execution/autonomy_router.py
+  - synkage/execution/audit.py
 ---
 
 ## Status
-in-progress — confirmation loop built in [Phase 1](../../phases/phase-01-brain.md); router, planner, rollback, audit log planned for [Phase 4](../../phases/phase-04-routing.md).
-
-## Responsibilities
-- Map task → [adapter](adapters.md).
-- Apply autonomy thresholds from the [autonomy policy](../data-models/autonomy-policy.md).
-- Run the [confirmation loop](../flows/confirmation-loop.md).
-- Support undo / rollback where possible.
-- Write an audit record for every execution (intent, tool, autonomy level, confirmation state, result).
+in-progress — confirmation loop (Phase 1); action planner, autonomy router and audit log ([Phase 4](../../phases/phase-04-routing.md)). `rollback.py` is not built.
 
 ## Files
-- `confirmation_loop.py` — built: `confirm(plan, tool_target, ask, show) -> ConfirmationResult`. See [confirmation loop](../flows/confirmation-loop.md).
-- `action_planner.py`, `autonomy_router.py`, `rollback.py` — planned.
+| File | Role |
+|---|---|
+| `confirmation_loop.py` | `confirm(plan, tool_target, ask, show)`; only `yes` confirms. See [confirmation loop](../flows/confirmation-loop.md) |
+| `action_planner.py` | `ActionPlanner.plan(request, intent, decision) -> ExecutionPlan` (tool, adapter from the registry, risk, categories, `requires_confirmation`, blocked/unavailable/nothing-to-do). **Re-derives safety** instead of trusting the decision |
+| `autonomy_router.py` | `AutonomyRouter.route(request, intent, decision, confirmation, run_id)`: the only place an action may run. `load_request(path)` reads a draft artifact file |
+| `audit.py` | Append-only [audit log](../data-models/audit-log.md) |
+
+Full order of checks: [execution routing](../flows/execution-routing.md).
+
+## Connections
+Uses [adapters](adapters.md) and the brain's [autonomy guard](autonomy-guard.md) (keyword matching). Called by the [CLI](cli.md) `run` and `shell` commands.

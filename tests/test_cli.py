@@ -69,8 +69,8 @@ def test_shell_confirm_yes_and_no():
     assert result.exit_code == 0
     assert "Plan: send message to Rahul" in result.output
     assert "Tool: WhatsApp Web (whatsapp_web)" in result.output
-    assert "Confirmed" in result.output
-    assert "Cancelled." in result.output
+    assert "Execution: unavailable" in result.output  # confirmed, but the tool is disabled
+    assert "Execution: refused" in result.output  # answered "no"
 
 
 def test_shell_preview_does_not_ask_for_confirmation():
@@ -105,3 +105,25 @@ def test_skills_command_lists_skills_and_permissions():
     for name in ("plan_steps", "classify_intent", "format_note"):
         assert name in result.output
     assert "builder" in result.output
+
+
+def test_run_dry_run_executes_nothing(audit_log):
+    result = runner.invoke(app, ["run", "send message to Raj dry run: hi"])
+    assert result.exit_code == 0, result.output
+    assert "Execution: dry_run" in result.output
+    assert "Type 'yes'" not in result.output
+    assert '"dry_run"' in audit_log.read_text()
+
+
+def test_run_asks_for_confirmation_and_audits(audit_log):
+    result = runner.invoke(app, ["run", "send message to Raj: hi"], input="no\n")
+    assert "Type 'yes'" in result.output
+    assert "Execution: refused" in result.output
+    assert '"confirmed":false' in audit_log.read_text()
+
+
+def test_run_preview_routes_nothing(audit_log):
+    result = runner.invoke(app, ["run", "send message"])
+    assert result.exit_code == 0
+    assert "Execution:" not in result.output
+    assert not audit_log.exists()

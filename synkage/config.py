@@ -214,6 +214,15 @@ def resolve_runs_dir(runs_dir: str | Path | None = None) -> Path:
     return path if path.is_absolute() else (REPO_ROOT / path)
 
 
+def resolve_audit_log(audit_log: str | Path | None = None) -> Path:
+    """Append-only audit log. Explicit arg > SYNKAGE_AUDIT_LOG (env or .env) > <repo>/logs.jsonl."""
+    if audit_log is None:
+        load_dotenv(REPO_ROOT / ".env")
+        audit_log = os.environ.get("SYNKAGE_AUDIT_LOG") or REPO_ROOT / "logs.jsonl"
+    path = Path(audit_log)
+    return path if path.is_absolute() else (REPO_ROOT / path)
+
+
 def _read(path: Path) -> Any:
     if not path.is_file():
         raise ConfigError(f"missing config file: {path}")

@@ -2,6 +2,11 @@
 
 Newest first.
 
+## 2026-09-24T19:27:24Z — Phase 4 (Routing)
+- New: [execution routing](flows/execution-routing.md), [audit log](data-models/audit-log.md).
+- Built: [adapters](modules/adapters.md), [execution](modules/execution.md) (action planner, router, audit).
+- Updated: [CLI](modules/cli.md) (`run`; shell routes), [intent resolver](modules/intent-resolver.md) + [command grammar](apis/command-grammar.md) (safer option inside content → preview), [confirmation loop](flows/confirmation-loop.md), [tool registry](data-models/tool-registry.md), [config loader](modules/config-loader.md), [agents](modules/agents.md), [brain](modules/brain.md), [tools](modules/tools.md), [OpenClaw](services/openclaw-runtime.md), [command pipeline](flows/command-pipeline.md).
+
 ## 2026-09-24T19:17:25Z — Phase 3 (Skills)
 - Built: [skills](modules/skills.md) (base class, registry with default-deny permissions, plan_steps, classify_intent, format_note).
 - Updated: [agents](modules/agents.md) (planner/builder call skills via the registry), [autonomy policy](data-models/autonomy-policy.md) (`agent_skills`), [config loader](modules/config-loader.md), [CLI](modules/cli.md) (`skills`), [agent chain](flows/agent-chain.md), [agent artifact](data-models/agent-artifact.md), [command pipeline](flows/command-pipeline.md).

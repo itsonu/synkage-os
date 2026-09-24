@@ -2,7 +2,7 @@
 type: Data Model
 title: Tool registry
 description: Registered tools, their kind, execution adapter, risk class, and enabled flag.
-timestamp: 2026-09-24T18:48:53Z
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - config/tool_registry.json
   - config/schema/tool_registry.schema.json
@@ -23,6 +23,12 @@ built (Phase 0) — all tools `enabled: false` until their controllers exist ([P
 | `notes` | string | free text |
 
 Top level: `$schema`, `version`, `tools[]`. Validated by the [config loader](../modules/config-loader.md). The JSON Schema file is **generated** — see [runbook](../runbooks/change-config-schema.md).
+
+## Enforced by the router
+- `adapter` picks the adapter; the draft's adapter is ignored.
+- `enabled: false` → the router returns `unavailable` and never calls the adapter.
+- `risk_class` drives confirmation.
+See [execution routing](../flows/execution-routing.md).
 
 ## Seeded tools
 browser, whatsapp_web, gmail, sticky_notes, vscode, openclaw.

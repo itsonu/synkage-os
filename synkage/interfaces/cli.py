@@ -13,9 +13,12 @@ from rich.markup import escape
 from rich.table import Table
 
 from synkage import __version__
+from synkage.adapters.tool_adapter_base import ExecutionResult, ExecutionStatus
 from synkage.agents.base_agent import read_artifact
+from synkage.brain.intent_resolver import Mode
 from synkage.brain.prime import DelegationResult, Prime, PrimeResult
 from synkage.config import ConfigError, SynkageConfig, load_config
+from synkage.execution.autonomy_router import AutonomyRouter, load_request
 from synkage.execution.confirmation_loop import confirm
 from synkage.logging_setup import setup_logging
 from synkage.skills.registry import SkillRegistry
@@ -82,11 +85,21 @@ def prepare(
 
 
 @app.command()
+def run(
+    ctx: typer.Context,
+    command: Annotated[str, typer.Argument(help='e.g. "send message to Raj: running late dry run"')],
+) -> None:
+    """Run one command: parse, prepare, confirm if needed, route to an adapter."""
+    ok = _process(ctx.obj, Prime(ctx.obj), AutonomyRouter(ctx.obj), command, _make_ask())
+    if not ok:
+        raise typer.Exit(code=1)
+
+
+@app.command()
 def shell(ctx: typer.Context) -> None:
-    """Interactive loop: parse, prepare via agents, confirm. Executes nothing yet."""
-    prime = Prime(ctx.obj)
-    ask = _make_ask()
-    console.print("Synkage shell — type a command, 'exit' to quit. Nothing is executed until Phase 4.")
+    """Interactive loop: parse, prepare via agents, confirm, route to an adapter."""
+    prime, router, ask = Prime(ctx.obj), AutonomyRouter(ctx.obj), _make_ask()
+    console.print("Synkage shell — type a command, 'exit' to quit.")
     while True:
         try:
             line = ask("synkage> ").strip()
@@ -96,18 +109,30 @@ def shell(ctx: typer.Context) -> None:
             continue
         if line.lower() in {"exit", "quit"}:
             break
-        result = prime.handle(line)
-        render_result(result)
-        delegation = prime.delegate(result)
-        render_delegation(delegation)
-        d = result.decision
-        if not delegation.ok:
-            continue
-        if d.may_execute and d.requires_confirmation:
-            outcome = confirm(result.plan_text(), _tool_label(ctx.obj, result), ask, _show)
-            console.print("Confirmed — execution arrives in Phase 4." if outcome.confirmed else "Cancelled.")
-        elif d.may_execute:
-            console.print("Would run without confirmation — execution arrives in Phase 4.")
+        _process(ctx.obj, prime, router, line, ask)
+
+
+def _process(cfg: SynkageConfig, prime: Prime, router: AutonomyRouter, line: str, ask) -> bool:
+    """parse -> prepare -> (confirm) -> route. Returns False if preparing failed."""
+    result = prime.handle(line)
+    render_result(result)
+    delegation = prime.delegate(result)
+    render_delegation(delegation)
+    if not delegation.ok:
+        return not delegation.chain  # level 0 runs no agents; that's not a failure
+    draft = delegation.output_of("builder")
+    if draft is None:  # preview / plan-only chains have nothing to route
+        return True
+    request = load_request(draft)
+    d = result.decision
+    confirmation = None
+    if result.intent.mode == Mode.execute and d.may_execute and request.ready:
+        plan = router.planner.plan(request, result.intent, d)
+        if plan.requires_confirmation:
+            confirmation = confirm(result.plan_text(), _tool_label(cfg, result), ask, _show)
+    execution = router.route(request, result.intent, d, confirmation, run_id=delegation.run_id)
+    render_execution(execution)
+    return True
 
 
 @app.command()
@@ -190,6 +215,21 @@ def render_delegation(delegation: DelegationResult) -> None:
         console.rule("Report")
         _show(read_artifact(delegation.artifact).body.get("text", ""))
         console.print(f"[dim]Artifacts: {escape(str(delegation.run_dir))}[/]")
+
+
+STATUS_STYLE = {
+    ExecutionStatus.success: "green",
+    ExecutionStatus.failed: "red",
+    ExecutionStatus.refused: "red",
+    ExecutionStatus.unavailable: "yellow",
+    ExecutionStatus.dry_run: "cyan",
+    ExecutionStatus.skipped: "dim",
+}
+
+
+def render_execution(execution: ExecutionResult) -> None:
+    style = STATUS_STYLE[execution.status]
+    console.print(f"[{style}]Execution: {execution.status.value}[/] — {escape(execution.message)}")
 
 
 def render_status(cfg: SynkageConfig) -> None:

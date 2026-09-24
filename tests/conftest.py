@@ -20,3 +20,11 @@ def runs_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     d = tmp_path / "runs"
     monkeypatch.setenv("SYNKAGE_RUNS_DIR", str(d))
     return d
+
+
+@pytest.fixture(autouse=True)
+def audit_log(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Keep the audit log out of the repo's logs.jsonl in every test."""
+    p = tmp_path / "audit.jsonl"
+    monkeypatch.setenv("SYNKAGE_AUDIT_LOG", str(p))
+    return p

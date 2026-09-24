@@ -139,3 +139,20 @@ def test_options_inside_content_are_ignored(resolve):
     assert i.modifier is None
     assert i.tool_source == ToolSource.preference
     assert i.content == "please use gmail and auto execute"
+
+
+@pytest.mark.parametrize("phrase", ["dry run", "preview only", "ask before send"])
+def test_safer_modifier_at_end_of_content_forces_preview(resolve, phrase):
+    i = resolve(f"send message to Raj: hi {phrase}")
+    assert i.mode == Mode.preview
+    assert any("put options before ':'" in u for u in i.unclear)
+
+
+def test_modifier_in_middle_of_content_is_just_text(resolve):
+    i = resolve("send message to Raj: can we do a dry run tomorrow")
+    assert i.mode == Mode.execute and i.unclear == []
+
+
+def test_auto_execute_in_content_is_ignored_not_previewed(resolve):
+    i = resolve("send message to Raj: hi auto execute")
+    assert (i.mode, i.modifier, i.unclear) == (Mode.execute, None, [])

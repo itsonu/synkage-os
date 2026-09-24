@@ -18,3 +18,4 @@ docs/okf/graph.html
 .ruff_cache/
 
 runs/
+logs.jsonl

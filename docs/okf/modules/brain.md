@@ -2,7 +2,7 @@
 type: Module
 title: Brain layer
 description: Decision engine: intent, situation, autonomy level, strategy, verification.
-timestamp: 2026-09-24T19:17:37Z
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - synkage/brain/__init__.py
   - synkage/brain/prime.py
@@ -25,7 +25,7 @@ in-progress — intent resolver and autonomy guard built in [Phase 1](../../phas
 ## Files
 | File | Status |
 |---|---|
-| `prime.py` | built — `Prime.handle(text) -> PrimeResult(intent, decision)`; `Prime.delegate(result) -> DelegationResult` runs the [agent chain](../flows/agent-chain.md); `Prime.skills` is the one [skill registry](skills.md) shared by all agents |
+| `prime.py` | built — `Prime.handle(text) -> PrimeResult(intent, decision)`; `Prime.delegate(result) -> DelegationResult` runs the [agent chain](../flows/agent-chain.md); `Prime.skills` is the one [skill registry](skills.md) shared by all agents; `DelegationResult.output_of(agent)` finds a run's artifact |
 | `intent_resolver.py` | built — see [intent resolver](intent-resolver.md) |
 | `autonomy_guard.py` | built — see [autonomy guard](autonomy-guard.md) |
 | `situation_detector.py`, `priority_resolver.py`, `verifier.py` | planned |

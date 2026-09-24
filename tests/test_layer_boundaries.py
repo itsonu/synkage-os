@@ -14,6 +14,8 @@ FORBIDDEN = {
     "brain": ("synkage.tools", "synkage.adapters"),
     # skills make no decisions and touch no tools
     "skills": ("synkage.brain", "synkage.tools", "synkage.adapters", "synkage.execution"),
+    # adapters run what the router hands them; they can't reach the decision layers
+    "adapters": ("synkage.brain", "synkage.agents", "synkage.execution"),
     # the avatar is presentation only
     "avatar": ("synkage.brain", "synkage.execution", "synkage.adapters", "synkage.tools"),
 }

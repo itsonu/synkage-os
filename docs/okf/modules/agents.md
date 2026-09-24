@@ -2,7 +2,7 @@
 type: Module
 title: Agent layer
 description: Specialist reasoning workers that chain through files and invoke skills.
-timestamp: 2026-09-24T19:17:25Z
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - synkage/agents/__init__.py
   - synkage/agents/base_agent.py
@@ -26,7 +26,7 @@ in-progress — contract plus planner, builder, reporter built in [Phase 2](../.
 | Agent | Artifact `kind` | Does |
 |---|---|---|
 | planner | `plan` | Steps from the `plan_steps` skill, `task_type` from `classify_intent`; `blocked` lists the reasons for a preview |
-| builder | `action_draft` | Needs exactly one `plan` input; builds the payload the router will execute in Phase 4 (tool, adapter, target, content, steps, `ready`, `missing`). For ready `notes` tasks it adds `note` (title, markdown) via `format_note` |
+| builder | `action_draft` | Needs exactly one `plan` input; builds the payload the router will execute in Phase 4 (tool, adapter, target, content, steps, `ready`, `missing`). For ready `notes` tasks it adds `note` (title, markdown) via `format_note`. The body must validate as the adapters' `ActionRequest` |
 | reporter | `report` | Writes a brief text: ready or not, confirmation needed, safety flags, steps, "Nothing was executed" |
 
 `registry.AGENTS` maps each name to its class. [Prime](brain.md) picks the chain; see [agent chain](../flows/agent-chain.md).

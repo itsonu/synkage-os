@@ -2,7 +2,7 @@
 type: Module
 title: Intent resolver
 description: Rule-based parser turning a command string into a structured Intent.
-timestamp: 2026-09-24T18:58:38Z
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - synkage/brain/intent_resolver.py
 ---
@@ -32,6 +32,9 @@ built (Phase 1)
 5. Target verbs (`send`, `reply`): split on `to`, else first word = object, rest = target. Other verbs: `X as <object>`, or known object noun + details, or the whole phrase as object.
 6. No tool yet → preferred tool for the object's task type (skipped if the user named an unknown tool).
 7. Missing required target/tool (per verb rule) → unclear → preview.
+
+## Options inside message text
+Options after `:` never apply. A **safer** modifier (`dry run`, `preview only`, `ask before send`) at the *end* of the content forces preview with the hint "put options before ':'", because running normally would surprise the user. `auto execute` in content is silently ignored. A modifier in the middle of the content ("can we do a dry run tomorrow") is just text.
 
 ## Gotchas
 - `use` anywhere in the head starts a tool directive, so `summarize how to use docker` goes to preview (unknown tool 'docker'). Safe direction; revisit if it annoys.

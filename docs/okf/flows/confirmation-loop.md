@@ -2,13 +2,13 @@
 type: Flow
 title: Confirmation loop
 description: Gate for actions that need explicit user consent.
-timestamp: 2026-09-24T18:58:38Z
+timestamp: 2026-09-24T19:27:24Z
 sources:
   - synkage/execution/confirmation_loop.py
 ---
 
 ## Status
-built (Phase 1) for steps 1–3. Steps 4–5 (execute, log) arrive with the router in [Phase 4](../../phases/phase-04-routing.md).
+built. Steps 1–3 since Phase 1; steps 4–5 (execute, log) via the [execution router](execution-routing.md) since Phase 4. A `no` is routed too, so it is refused **and audited**.
 
 ## Steps
 1. Show plan. 2. Show tool target. 3. Require explicit confirm. 4. Execute. 5. Log result.
