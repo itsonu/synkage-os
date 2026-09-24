@@ -16,3 +16,5 @@ build/
 docs/okf/.tools/__pycache__/
 docs/okf/graph.html
 .ruff_cache/
+
+runs/

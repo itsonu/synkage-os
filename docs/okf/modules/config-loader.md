@@ -2,7 +2,7 @@
 type: Module
 title: Config loader
 description: Loads and validates every file in config/ into a typed SynkageConfig.
-timestamp: 2026-09-24T18:58:38Z
+timestamp: 2026-09-24T19:11:34Z
 sources:
   - synkage/config.py
 ---
@@ -13,6 +13,7 @@ built (Phase 0)
 ## Interface
 - `load_config(config_dir=None) -> SynkageConfig`
 - `resolve_config_dir()` — explicit arg > `SYNKAGE_CONFIG_DIR` (env or `.env`) > `<repo>/config`.
+- `resolve_runs_dir()` — explicit arg > `SYNKAGE_RUNS_DIR` > `<repo>/runs` ([agent artifact](../data-models/agent-artifact.md) location).
 - `ConfigError` — every failure; message names the file.
 - `HARD_NEVER_AUTONOMOUS` — built-in safety categories.
 - `tool_registry_json_schema()` — source for `config/schema/tool_registry.schema.json`.

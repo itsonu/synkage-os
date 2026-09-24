@@ -13,7 +13,8 @@ from rich.markup import escape
 from rich.table import Table
 
 from synkage import __version__
-from synkage.brain.prime import Prime, PrimeResult
+from synkage.agents.base_agent import read_artifact
+from synkage.brain.prime import DelegationResult, Prime, PrimeResult
 from synkage.config import ConfigError, SynkageConfig, load_config
 from synkage.execution.confirmation_loop import confirm
 from synkage.logging_setup import setup_logging
@@ -65,8 +66,23 @@ def parse(
 
 
 @app.command()
+def prepare(
+    ctx: typer.Context,
+    command: Annotated[str, typer.Argument(help='e.g. "send message to Rahul: running late"')],
+) -> None:
+    """Parse a command and run the agent chain (plan -> draft -> report). Executes nothing."""
+    prime = Prime(ctx.obj)
+    result = prime.handle(command)
+    render_result(result)
+    delegation = prime.delegate(result)
+    render_delegation(delegation)
+    if not delegation.ok and delegation.chain:
+        raise typer.Exit(code=1)
+
+
+@app.command()
 def shell(ctx: typer.Context) -> None:
-    """Interactive loop: parse commands and run the confirmation loop. Executes nothing yet."""
+    """Interactive loop: parse, prepare via agents, confirm. Executes nothing yet."""
     prime = Prime(ctx.obj)
     ask = _make_ask()
     console.print("Synkage shell — type a command, 'exit' to quit. Nothing is executed until Phase 4.")
@@ -81,7 +97,11 @@ def shell(ctx: typer.Context) -> None:
             break
         result = prime.handle(line)
         render_result(result)
+        delegation = prime.delegate(result)
+        render_delegation(delegation)
         d = result.decision
+        if not delegation.ok:
+            continue
         if d.may_execute and d.requires_confirmation:
             outcome = confirm(result.plan_text(), _tool_label(ctx.obj, result), ask, _show)
             console.print("Confirmed — execution arrives in Phase 4." if outcome.confirmed else "Cancelled.")
@@ -143,6 +163,18 @@ def render_result(result: PrimeResult) -> None:
         console.print(f"[red]Never autonomous:[/] {', '.join(d.categories)}")
     for reason in d.reasons:
         console.print(f"  - {escape(reason)}")
+
+
+def render_delegation(delegation: DelegationResult) -> None:
+    for note in delegation.notes:
+        console.print(f"[dim]agents: {escape(note)}[/]")
+    for r in delegation.results:
+        if r.error:
+            console.print(f"[red]{r.agent} failed:[/] {escape(r.error)}")
+    if delegation.artifact:
+        console.rule("Report")
+        _show(read_artifact(delegation.artifact).body.get("text", ""))
+        console.print(f"[dim]Artifacts: {escape(str(delegation.run_dir))}[/]")
 
 
 def render_status(cfg: SynkageConfig) -> None:

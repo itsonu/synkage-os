@@ -12,3 +12,11 @@ def config_dir(tmp_path: Path) -> Path:
     dst = tmp_path / "config"
     shutil.copytree(REPO_CONFIG, dst)
     return dst
+
+
+@pytest.fixture(autouse=True)
+def runs_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Keep agent artifacts out of the repo's runs/ folder in every test."""
+    d = tmp_path / "runs"
+    monkeypatch.setenv("SYNKAGE_RUNS_DIR", str(d))
+    return d

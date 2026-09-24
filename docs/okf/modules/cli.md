@@ -2,7 +2,7 @@
 type: Module
 title: CLI
 description: Typer app that loads config and prints system state.
-timestamp: 2026-09-24T18:58:38Z
+timestamp: 2026-09-24T19:11:34Z
 sources:
   - synkage/interfaces/cli.py
   - synkage/__main__.py
@@ -18,7 +18,8 @@ built (Phase 0; `parse` and `shell` added in Phase 1)
 | `python scripts/run_synkage.py` | Load config, print system state (same as `status`) |
 | `… status` | Print autonomy default, risk classes, never-autonomous list, tools table |
 | `… parse "<command>" [--json]` | Show parsed intent + autonomy decision. Executes nothing |
-| `… shell` | Interactive loop: parse each line, run the [confirmation loop](../flows/confirmation-loop.md) when required. Executes nothing until Phase 4. `exit`/`quit`/EOF leaves |
+| `… prepare "<command>"` | Parse, then run the [agent chain](../flows/agent-chain.md) and print the report plus the artifacts folder. Executes nothing. Exits 1 if an agent fails |
+| `… shell` | Interactive loop: parse each line, prepare via agents, show the report, then run the [confirmation loop](../flows/confirmation-loop.md) when required and the chain succeeded. Executes nothing until Phase 4. `exit`/`quit`/EOF leaves |
 | `… version` | Print version |
 | `--config-dir DIR` | Use another config directory |
 | `--log-level LEVEL` | DEBUG / INFO / WARNING / ERROR |

@@ -204,6 +204,15 @@ def resolve_config_dir(config_dir: str | Path | None = None) -> Path:
     return path
 
 
+def resolve_runs_dir(runs_dir: str | Path | None = None) -> Path:
+    """Where agent artifacts go. Explicit arg > SYNKAGE_RUNS_DIR (env or .env) > <repo>/runs."""
+    if runs_dir is None:
+        load_dotenv(REPO_ROOT / ".env")
+        runs_dir = os.environ.get("SYNKAGE_RUNS_DIR") or REPO_ROOT / "runs"
+    path = Path(runs_dir)
+    return path if path.is_absolute() else (REPO_ROOT / path)
+
+
 def _read(path: Path) -> Any:
     if not path.is_file():
         raise ConfigError(f"missing config file: {path}")

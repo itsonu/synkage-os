@@ -5,3 +5,5 @@
 **Built in Phase 0:** [CLI](cli.md) · [config loader](config-loader.md) · [logging](logging.md)
 
 **Built in Phase 1:** [intent resolver](intent-resolver.md) · [autonomy guard](autonomy-guard.md) (brain); confirmation loop in [execution](execution.md)
+
+**Built in Phase 2:** [agents](agents.md) (planner, builder, reporter)

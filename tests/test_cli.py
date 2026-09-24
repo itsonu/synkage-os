@@ -82,3 +82,18 @@ def test_shell_preview_does_not_ask_for_confirmation():
 
 def test_shell_exits_on_eof():
     assert runner.invoke(app, ["shell"], input="").exit_code == 0
+
+
+def test_prepare_runs_agent_chain(runs_dir):
+    result = runner.invoke(app, ["prepare", "send message to Rahul: running late"])
+    assert result.exit_code == 0, result.output
+    assert "Ready: send message to Rahul via WhatsApp Web." in result.output
+    assert "Nothing was executed" in result.output
+    assert len(list(runs_dir.glob("*/03-reporter.json"))) == 1
+
+
+def test_shell_shows_report_before_confirmation():
+    result = runner.invoke(app, ["shell"], input="send message to Rahul\nno\n")
+    assert result.exit_code == 0
+    out = result.output
+    assert out.index("Ready: send message to Rahul") < out.index("Type 'yes'")
