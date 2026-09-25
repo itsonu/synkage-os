@@ -212,7 +212,7 @@ config/app_preferences.yaml
 Start Synkage CLI:
 
 ```bash
-python scripts/run_synkage.py                                # system state (config, autonomy, tools)
+python scripts/run_synkage.py                                # system state (situation, autonomy, tools)
 python scripts/run_synkage.py parse "send message to Rahul"  # parsed intent + autonomy decision
 python scripts/run_synkage.py prepare "send message to Raj: running late"  # plan -> draft -> report
 python scripts/run_synkage.py run "send message to Raj dry run: hi"  # full pipeline, dry run

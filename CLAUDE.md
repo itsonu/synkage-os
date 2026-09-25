@@ -25,6 +25,7 @@ pip install -r requirements.txt ruff       # setup (inside a venv)
 playwright install chromium                # browser for WhatsApp/Gmail + mock-page tests
 python scripts/run_synkage.py              # run: load config, print system state (= python -m synkage)
 python scripts/run_synkage.py --log-level DEBUG --config-dir path/to/config status
+python scripts/run_synkage.py --situation focused run "save note x"   # force a situation state
 python scripts/run_synkage.py parse "send message to Rahul" [--json]   # intent + autonomy decision
 python scripts/run_synkage.py prepare "send message to Raj: late"      # + agent chain -> report, artifacts in runs/
 python scripts/run_synkage.py run "send message to Raj dry run: hi"    # parse -> prepare -> confirm -> route (+audit)
@@ -81,7 +82,7 @@ External runtimes such as OpenClaw are reached only through adapters and remain 
 - **Never autonomous:** payments, account changes, password handling, public posting, destructive file operations, system config changes. These are hard-coded in `HARD_NEVER_AUTONOMOUS`. The config loader rejects any config that drops one or relaxes high/critical risk, so config can tighten the rules but never loosen them.
 - Confirmation loop: show the plan → show the tool target → get an explicit confirm → execute → log. Audit fields are intent, tool, autonomy level, confirmation state and result.
 - **If the tool or target is unclear, switch to preview mode.** Never guess and then execute.
-- Situation detection uses rules over signals, not a model ([ADR-0003](docs/okf/decisions/0003-rule-based-situation-detection.md)).
+- Situation detection uses rules over signals, not a model ([ADR-0003](docs/okf/decisions/0003-rule-based-situation-detection.md)). `Prime.handle` collects signals (`synkage/context/`: macOS idle time, frontmost app, quiet hours, urgency words **before `:` only**), classifies them (`brain/situation_detector.py`: idle/normal/focused/urgent/emergency), and passes the result to the guard. Per `config/situation.yaml`, focused/urgent/emergency let **low-risk** actions skip confirmation at the default level ([ADR-0009](docs/okf/decisions/0009-situation-policy.md)). Hard rules still apply in every state, and config can't list high/critical. Tests pin neutral signals with an autouse fixture, so results never depend on the machine.
 
 ### Command grammar (`docs/command_grammar.md`)
 `<action> <object> [target] [options]`, with message content after the first `:`. Options go **before** the `:`. Options inside content never apply, but a safer one (`dry run`, `preview only`, `ask before send`) at the end of the content forces preview. The vocabulary lives in `config/command_aliases.yaml`: per-verb `needs_target`/`needs_tool` rules, object noun → task type, `use <tool>` directives, autonomy modifiers and agent directives. Tools resolve in this order: `use X` directive > inline mention > preferred tool for the object's task type. Safety categories are matched by whole-word keywords in `config/permissions.yaml`.

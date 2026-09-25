@@ -4,6 +4,15 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-25 — Phase 6 (Situation awareness) done
+- Context layer: `time_context` (quiet hours, midnight wrap), `activity_monitor` (macOS `ioreg` idle time + frontmost app via osascript; failures → unknown), `signal_ingestion` (snapshot + urgent/emergency words).
+- Brain: `situation_detector` (7 ordered rules, unknown never triggers); `Prime.situation()`, `PrimeResult.situation`; the guard applies `states.<state>.auto_risk` at level 2, before the hard rules.
+- Config: new `config/situation.yaml` + `SituationConfig` (five states required; auto for high/critical rejected).
+- CLI: global `--situation`; `status` shows the situation and what it relaxes; `parse`/`run` show a Situation line. The audit log records the situation.
+- Decisions (inferred, ADR-0009): focused/urgent/emergency → low-risk runs without confirmation; idle/normal unchanged.
+- Found in self-review: urgency words in message text were loosening confirmation (inconsistent with the Phase 4 rule) → now only the command before ':' counts. Tests on a Mac would have read real probes (Terminal → focused) → autouse fixture pins neutral signals.
+- Tests: 346 passed + 1 skipped. Phase 5 still waits on the user's manual checks.
+
 ## 2026-09-24 — Phase 5 (Tool control), automated part
 - User answers: primary OS **macOS**; do only the parts that don't touch their accounts.
 - Tools layer: `BrowserSession` (persistent profile outside the repo, lazy launch), `WhatsAppWeb` (phone link or exact-name search; `send` only the exact drafted text; duplicate names refused), `Gmail` (drafts only, never sends), `AppleNotes` (osascript with argv, no injection).
