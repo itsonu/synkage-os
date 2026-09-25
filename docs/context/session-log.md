@@ -4,6 +4,15 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-25 — Phase 7 (Memory & night cycle) done
+- User chose the suggested defaults: memory in `~/.synkage/memory`; trust moved by outcomes with decay.
+- `synkage/memory/store.py` (0700 dir, profile + relationship state, atomic writes, created on first CLI run), `night_cycle.py` (decay per elapsed day then outcome deltas; lossless compression into daily summaries + gzip archive; exclusive flock), `scripts/nightly_update.py` (once / `--schedule` via apscheduler 3.11).
+- New `config/memory.yaml` + `MemoryConfig`. The audit log's default moved to `<memory dir>/logs.jsonl`, and `AuditLog.append` now takes the flock.
+- CLI `status` shows the memory dir, trust and last cycle.
+- Verified: a race test fails 5/5 without the lock. The JSON-output CLI test now reads stdout (the first-run log goes to stderr).
+- Not built: pattern promotion; trust → autonomy wiring (deliberately; ADR-0010).
+- Tests: 376 passed + 1 skipped. Blocked next: Phase 5 (user), Phase 8 (OpenClaw API), Phase 9 (locked).
+
 ## 2026-09-25 — Phase 6 (Situation awareness) done
 - Context layer: `time_context` (quiet hours, midnight wrap), `activity_monitor` (macOS `ioreg` idle time + frontmost app via osascript; failures → unknown), `signal_ingestion` (snapshot + urgent/emergency words).
 - Brain: `situation_detector` (7 ordered rules, unknown never triggers); `Prime.situation()`, `PrimeResult.situation`; the guard applies `states.<state>.auto_risk` at level 2, before the hard rules.
