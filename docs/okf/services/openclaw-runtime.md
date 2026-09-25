@@ -2,11 +2,11 @@
 type: Integration
 title: OpenClaw runtime
 description: Optional external agent runtime used as an execution substrate.
-timestamp: 2026-09-24T19:27:24Z
+timestamp: 2026-09-25T13:40:01Z
 ---
 
 ## Status
-planned — optional, [Phase 8](../../phases/phase-08-openclaw.md). Registered as `openclaw` (disabled) in the [tool registry](../data-models/tool-registry.md).
+**deferred** — [Phase 8](../../phases/phase-08-openclaw.md) was deferred by the user (2026-09-25): it's optional and the spec has no API contract. Registered as `openclaw` (disabled) in the [tool registry](../data-models/tool-registry.md).
 
 A stub `openclaw` adapter exists (Phase 4). It always returns `unavailable`.
 

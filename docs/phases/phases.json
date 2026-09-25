@@ -386,7 +386,7 @@
       "id": "phase-08-openclaw",
       "title": "OpenClaw integration (optional)",
       "goal": "Synkage delegates execution to OpenClaw safely.",
-      "status": "todo",
+      "status": "deferred",
       "depends_on": [
         "phase-04-routing"
       ],
@@ -413,7 +413,8 @@
           "met": false,
           "evidence": null
         }
-      ]
+      ],
+      "deferred_reason": "User deferred it on 2026-09-25: optional, and the spec has no OpenClaw API contract. The stub adapter stays (always 'unavailable'); the openclaw tool stays disabled."
     },
     {
       "id": "phase-09-avatar",

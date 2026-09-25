@@ -13,7 +13,7 @@ import json
 import os
 import sys
 
-PHASE_STATUS = {"todo", "in_progress", "done", "blocked"}
+PHASE_STATUS = {"todo", "in_progress", "done", "blocked", "deferred"}  # deferred = user chose to skip for now
 PROJ_STATUS = {"todo", "in_progress", "done", "blocked", "complete"}
 
 
@@ -50,11 +50,19 @@ def main():
         st = p.get("status")
         if st not in PHASE_STATUS:
             errors.append(f"{pid}: status '{st}' not in {sorted(PHASE_STATUS)}")
+        deferred_ids = {q.get("id") for q in phases if q.get("status") == "deferred"}
         for dep in p.get("depends_on", []):
+            if dep in deferred_ids and st != "deferred":
+                errors.append(f"{pid}: depends on deferred phase '{dep}'")
             if dep not in ids:
                 errors.append(f"{pid}: depends_on '{dep}' not found")
             elif st in ("in_progress", "done") and dep not in done_ids:
                 errors.append(f"{pid}: is '{st}' but dependency '{dep}' is not done")
+        if st == "deferred":
+            if pid == cur:
+                errors.append(f"{pid}: deferred phase cannot be current_phase")
+            if not p.get("deferred_reason"):
+                errors.append(f"{pid}: deferred without a deferred_reason")
         acs = p.get("acceptance_criteria", [])
         for ac in acs:
             if ac.get("met") and not ac.get("evidence"):
@@ -69,7 +77,9 @@ def main():
     for p in phases:
         acs = p.get("acceptance_criteria", [])
         met = sum(1 for a in acs if a.get("met"))
-        mark = {"done": "✓", "in_progress": "▶", "blocked": "✗", "todo": "·"}.get(p.get("status"), "?")
+        mark = {"done": "✓", "in_progress": "▶", "blocked": "✗", "todo": "·", "deferred": "–"}.get(
+            p.get("status"), "?"
+        )
         print(f" {mark} {p.get('id'):<26} {met}/{len(acs)} criteria  [{p.get('status')}]")
 
     # next action

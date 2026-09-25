@@ -1,7 +1,7 @@
 # Roadmap — Synkage Core
 
 Machine state: [`phases.json`](phases.json) (source of truth). Board: `python scripts/phases_status.py`.
-Numbering follows `docs/plan.md`. **MVP = Phases 1–5 done.** Phases 6–7 can run in parallel after 4; 8 is optional; 9 is locked.
+Numbering follows `docs/plan.md`. **MVP = Phases 1–5 done.** Phases 6–7 can run in parallel after 4; 8 is **deferred** by the user (optional; no API contract); 9 is locked until the MVP is done. Status `deferred` needs a `deferred_reason` in `phases.json`, can't be the current phase, and no active phase may depend on it.
 
 | # | Phase | Status | Criteria | Depends on |
 |---|---|---|---|---|
@@ -13,7 +13,7 @@ Numbering follows `docs/plan.md`. **MVP = Phases 1–5 done.** Phases 6–7 can 
 | [05](phase-05-tool-control.md) | Tool control | in_progress | 1/5 | 04 |
 | [06](phase-06-situation.md) | Situation awareness | done | 4/4 | 04 |
 | [07](phase-07-memory.md) | Memory & night cycle | done | 4/4 | 04 |
-| [08](phase-08-openclaw.md) | OpenClaw integration (optional) | todo | 0/3 | 04 |
+| [08](phase-08-openclaw.md) | OpenClaw integration (optional) | **deferred** | 0/3 | 04 |
 | [09](phase-09-avatar.md) | Avatar layer (locked) | todo | 0/3 | 05, 06, 07 |
 
 Current phase: **phase-05-tool-control** (waiting on the user's manual checks; Phases 6 and 7 were done meanwhile). Resume point: [state.md](../context/state.md).

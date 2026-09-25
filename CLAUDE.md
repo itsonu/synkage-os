@@ -116,4 +116,4 @@ External runtimes such as OpenClaw are reached only through adapters and remain 
 - Deploying to production, changing infra/billing/account settings, or spending money.
 
 ## Definition of done (project)
-Every phase in `phases.json` is `done`, with all acceptance criteria met and evidenced. The OKF bundle lints with 0 errors, and `state.md` reads `project: complete`. Phase 8 (optional) and Phase 9 (locked) may be explicitly deferred by the user.
+Every phase in `phases.json` is `done`, with all acceptance criteria met and evidenced. The OKF bundle lints with 0 errors, and `state.md` reads `project: complete`. Phase 8 (optional) was **deferred by the user** (status `deferred` + `deferred_reason` in `phases.json`); Phase 9 (locked) may be deferred the same way.

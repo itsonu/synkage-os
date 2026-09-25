@@ -2,7 +2,7 @@
 type: Module
 title: Execution adapter layer
 description: Replaceable backends that translate action requests into tool or runtime calls.
-timestamp: 2026-09-24T19:40:06Z
+timestamp: 2026-09-25T13:40:01Z
 sources:
   - synkage/adapters/__init__.py
   - synkage/adapters/tool_adapter_base.py
@@ -12,7 +12,7 @@ sources:
 ---
 
 ## Status
-in-progress — contract and `openclaw` stub (Phase 4); `local_exec` handlers for WhatsApp, Gmail and Apple Notes ([Phase 5](../../phases/phase-05-tool-control.md)). The real OpenClaw adapter comes in [Phase 8](../../phases/phase-08-openclaw.md).
+in-progress — contract and `openclaw` stub (Phase 4); `local_exec` handlers for WhatsApp, Gmail and Apple Notes ([Phase 5](../../phases/phase-05-tool-control.md)). The real OpenClaw adapter ([Phase 8](../../phases/phase-08-openclaw.md)) is **deferred**; the stub stays.
 
 ## Contract (`tool_adapter_base.py`)
 - `ActionRequest` is the builder's `action_draft` body ([agent artifact](../data-models/agent-artifact.md)). It uses `extra="forbid"`, so builder/adapter drift fails loudly; `tests/test_adapters.py` checks that real builder drafts validate.

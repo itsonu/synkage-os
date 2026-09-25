@@ -2,6 +2,9 @@
 
 Newest first.
 
+## 2026-09-25T13:40:01Z — Phase 8 deferred
+- The user deferred the optional OpenClaw phase (no API contract). Updated: [OpenClaw runtime](services/openclaw-runtime.md), [adapters](modules/adapters.md). The stub adapter and the disabled `openclaw` tool stay.
+
 ## 2026-09-25T13:38:13Z — Phase 7 (Memory & night cycle)
 - New: [memory config](data-models/memory-config.md), [ADR-0010](decisions/0010-memory-and-trust.md). Built: [memory](modules/memory.md), [memory store](data-models/memory-store.md), [night cycle](flows/night-cycle.md).
 - Updated: [audit log](data-models/audit-log.md) (moved into memory; flock; night cycle is the only rewriter), [execution](modules/execution.md), [config loader](modules/config-loader.md), [CLI](modules/cli.md), [local setup](runbooks/local-setup.md).

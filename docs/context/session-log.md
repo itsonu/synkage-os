@@ -4,6 +4,12 @@ Append-only, newest first. One entry per working session: what changed, what was
 
 ---
 
+## 2026-09-25 — Phase 8 deferred
+- User decision: defer Phase 8 (OpenClaw; optional, no API contract).
+- `scripts/phases_status.py` gains a `deferred` status. It requires a `deferred_reason`, can't be `current_phase`, and no active phase may depend on it (all three checked against bad inputs → exit 1).
+- Phase 8 is marked deferred in `phases.json`, the phase file and the index. The OKF OpenClaw/adapters concepts are updated; the stub adapter stays.
+- Remaining: Phase 5 (the user's manual checks) → then Phase 9 unlocks.
+
 ## 2026-09-25 — Phase 7 (Memory & night cycle) done
 - User chose the suggested defaults: memory in `~/.synkage/memory`; trust moved by outcomes with decay.
 - `synkage/memory/store.py` (0700 dir, profile + relationship state, atomic writes, created on first CLI run), `night_cycle.py` (decay per elapsed day then outcome deltas; lossless compression into daily summaries + gzip archive; exclusive flock), `scripts/nightly_update.py` (once / `--schedule` via apscheduler 3.11).

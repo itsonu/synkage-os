@@ -7,7 +7,7 @@ tags: [phase]
 ---
 
 ## Status
-todo
+deferred — by the user (2026-09-25). Optional phase, and the spec gives no OpenClaw API contract. Resume by setting the status back to `todo` once the API is known.
 
 ## Goal
 Synkage delegates execution to OpenClaw safely.
