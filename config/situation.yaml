@@ -1,0 +1,28 @@
+# Situation detection (rule-based, ADR-0003) and how each state adjusts autonomy.
+# States: idle, normal, focused, urgent, emergency (docs/architecture.md).
+# Loaded by synkage/config.py; signals come from synkage/context/.
+
+idle_after_seconds: 300          # no keyboard/mouse input for this long -> idle
+
+# Frontmost macOS app names that mean deep work -> focused (when not idle).
+focus_apps: [Code, Visual Studio Code, Xcode, PyCharm, IntelliJ IDEA, Terminal, iTerm2]
+
+# Whole-word, case-insensitive matches in the command, before any ':' (message
+# text never changes the situation, so it can't loosen confirmation).
+urgent_keywords: [urgent, asap, immediately, "right now"]
+emergency_keywords: [emergency, sos]
+
+quiet_hours: {start: "23:00", end: "07:00"}   # local time; inside it with no activity data -> idle
+
+# Per state: risk classes that may run without confirmation at the default level.
+# Inferred defaults (the spec says situation adjusts confirmation but not how):
+#   focused   -> don't interrupt deep work for low-risk actions
+#   urgent / emergency -> low-risk actions run at once
+# high/critical can never be listed (validation), and never-autonomous
+# categories always need confirmation regardless of state.
+states:
+  idle: {auto_risk: []}
+  normal: {auto_risk: []}
+  focused: {auto_risk: [low]}
+  urgent: {auto_risk: [low]}
+  emergency: {auto_risk: [low]}

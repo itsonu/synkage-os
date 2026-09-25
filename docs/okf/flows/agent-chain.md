@@ -2,7 +2,7 @@
 type: Flow
 title: Agent chain
 description: How Prime picks agents and chains them through files.
-timestamp: 2026-09-24T19:27:36Z
+timestamp: 2026-09-25T13:31:09Z
 sources:
   - synkage/brain/prime.py
 ---
@@ -27,7 +27,7 @@ built (Phase 2)
 
 Delegation only prepares (plans, drafts, reports). It runs at levels 1–3 and never needs confirmation, because nothing is executed. Confirmation comes afterwards, in the [confirmation loop](confirmation-loop.md).
 
-Prime creates one [skill registry](../modules/skills.md) and passes it to every agent in the chain.
+Prime creates one [skill registry](../modules/skills.md) and passes it to every agent in the chain. Each `AgentTask.decision` carries the [situation](../modules/situation-detector.md) (Phase 6), so the planner's confirm step reflects it: a focused low-risk note gets no "Ask the user to confirm" step.
 
 ## Connections
 Called from the [brain](../modules/brain.md). Uses the [agents](../modules/agents.md). Part of the [command pipeline](command-pipeline.md).

@@ -2,7 +2,7 @@
 type: Module
 title: Config loader
 description: Loads and validates every file in config/ into a typed SynkageConfig.
-timestamp: 2026-09-24T19:27:24Z
+timestamp: 2026-09-25T13:30:46Z
 sources:
   - synkage/config.py
 ---
@@ -27,6 +27,7 @@ built (Phase 0)
 - Every never-autonomous category has at least one `category_keywords` entry, and no keywords exist for unknown categories.
 - Verbs are a map of `VerbRule {needs_target, needs_tool}`.
 - `permissions.agent_skills` is an agent → skill-names map. Names are checked against the registry by `tests/test_skill_registry.py`, not at load time (config doesn't import the skills layer).
+- `situation.yaml`: exactly five states; `auto_risk` only for known risk classes that don't require confirmation; `HH:MM` quiet hours ([situation config](../data-models/situation-config.md)).
 - Tool ids unique; every tool's `risk_class` exists.
 - Every preferred tool and every `use <x>` directive points at a registered tool.
 

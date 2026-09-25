@@ -2,7 +2,7 @@
 type: Data Model
 title: Audit log
 description: Append-only JSONL record of every routed action.
-timestamp: 2026-09-24T19:40:06Z
+timestamp: 2026-09-25T13:30:46Z
 sources:
   - synkage/execution/audit.py
 ---
@@ -21,6 +21,7 @@ built (Phase 4)
 | `intent` | `raw`, `verb`, `object`, `target`, `mode` |
 | `tool`, `adapter` | As planned by the router (registry adapter) |
 | `autonomy_level` | From the decision |
+| `situation` | State at decision time; explains a low-risk action that skipped confirmation (Phase 6) |
 | `risk_class`, `categories` | **As enforced by the router** (re-derived), not as claimed upstream |
 | `confirmation` | `{required, confirmed}`; `confirmed` is null when never asked |
 | `result` | `{status, message}`; `drafted` records a pre-confirmation draft |

@@ -16,6 +16,8 @@ FORBIDDEN = {
     "skills": ("synkage.brain", "synkage.tools", "synkage.adapters", "synkage.execution"),
     # adapters run what the router hands them; they can't reach the decision layers
     "adapters": ("synkage.brain", "synkage.agents", "synkage.execution"),
+    # context only reports signals; deciding is the brain's job
+    "context": ("synkage.brain", "synkage.agents", "synkage.skills", "synkage.execution", "synkage.adapters"),
     # tool controllers take plain arguments; they know nothing above them
     "tools": ("synkage.brain", "synkage.agents", "synkage.skills", "synkage.execution", "synkage.adapters"),
     # the avatar is presentation only

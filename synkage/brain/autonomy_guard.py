@@ -1,8 +1,9 @@
 """Autonomy guard: decides whether an intent may run, and whether it needs confirmation.
 
 Inputs (docs/autonomy_safety.md): autonomy level, task risk class, tool sensitivity,
-safety categories, situation. Phase 1 uses the configured default level and treats
-the situation as 'normal'; situation-driven thresholds arrive in Phase 6.
+safety categories, situation. The situation (Phase 6) can drop confirmation for the
+risk classes its policy lists in config/situation.yaml (e.g. low risk while focused),
+but only at the default level and never past an explicit "ask before send".
 
 Hard rules, applied last so nothing can override them:
   - any never_autonomous category  -> confirmation required
@@ -16,6 +17,7 @@ import re
 from pydantic import BaseModel, Field
 
 from synkage.brain.intent_resolver import Intent, Mode
+from synkage.brain.situation_detector import Situation
 from synkage.config import SynkageConfig
 
 DEFAULT_RISK = "low"  # intents that touch no tool (e.g. summarize)
@@ -23,6 +25,7 @@ DEFAULT_RISK = "low"  # intents that touch no tool (e.g. summarize)
 
 class AutonomyDecision(BaseModel):
     level: int
+    situation: str = "normal"
     risk_class: str
     categories: list[str] = Field(default_factory=list)
     may_execute: bool
@@ -46,10 +49,13 @@ class AutonomyGuard:
         tool = self.cfg.tools.get(intent.tool) if intent.tool else None
         return tool.risk_class if tool else DEFAULT_RISK
 
-    def decide(self, intent: Intent, level: int | None = None) -> AutonomyDecision:
+    def decide(
+        self, intent: Intent, level: int | None = None, situation: Situation | None = None
+    ) -> AutonomyDecision:
         a = self.cfg.autonomy
         level = a.default_level if level is None else level
         reasons: list[str] = []
+        state = situation.state.value if situation else "normal"
 
         if intent.modifier == "auto":
             level = 3
@@ -71,6 +77,13 @@ class AutonomyGuard:
         elif level <= 1:
             reasons.append(f"level {level} ({a.levels[level].name}) never executes")
 
+        # Situation threshold: at the default level, the state's policy may let the
+        # listed risk classes run without confirmation. Applied before the hard rules.
+        auto_risk = self.cfg.situation.states[state].auto_risk
+        if level == 2 and may_execute and intent.modifier != "confirm" and risk in auto_risk:
+            level = 3
+            reasons.append(f"situation '{state}': {risk}-risk actions run without confirmation")
+
         # Hard rules hold at every level, even when nothing runs, so callers can't
         # misread a level-0/1 decision as "safe to auto-run later".
         requires_confirmation = level == 2 and may_execute
@@ -85,6 +98,7 @@ class AutonomyGuard:
 
         return AutonomyDecision(
             level=level,
+            situation=state,
             risk_class=risk,
             categories=categories,
             may_execute=may_execute,

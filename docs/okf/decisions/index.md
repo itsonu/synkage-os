@@ -10,3 +10,4 @@
 | [0006](0006-package-layout.md) | Code in `synkage/`, config data in `config/` |
 | [0007](0007-playwright-browser-automation.md) | Playwright for browser automation |
 | [0008](0008-macos-tool-control.md) | macOS tool control: draft first, Apple Notes, Gmail drafts only |
+| [0009](0009-situation-policy.md) | Situation policy: focused/urgent/emergency relax confirmation for low risk only |

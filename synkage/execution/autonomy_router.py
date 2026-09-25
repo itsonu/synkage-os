@@ -114,6 +114,7 @@ class AutonomyRouter:
                 tool=plan.tool,
                 adapter=plan.adapter,
                 autonomy_level=decision.level,
+                situation=decision.situation,
                 risk_class=plan.risk_class,
                 categories=plan.categories,
                 confirmation={

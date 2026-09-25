@@ -21,6 +21,7 @@ class AuditRecord(BaseModel):
     tool: str | None
     adapter: str | None
     autonomy_level: int
+    situation: str = "normal"  # explains why a low-risk action may have skipped confirmation
     risk_class: str
     categories: list[str] = Field(default_factory=list)
     confirmation: dict  # {"required": bool, "confirmed": bool | None}

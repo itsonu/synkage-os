@@ -21,7 +21,9 @@ from synkage.agents.base_agent import AgentResult, AgentTask, TaskStatus
 from synkage.agents.registry import AGENTS
 from synkage.brain.autonomy_guard import AutonomyDecision, AutonomyGuard
 from synkage.brain.intent_resolver import Intent, IntentResolver, Mode
+from synkage.brain.situation_detector import Situation, SituationDetector
 from synkage.config import SynkageConfig, resolve_runs_dir
+from synkage.context.signal_ingestion import SignalCollector
 from synkage.skills.registry import SkillRegistry
 
 FULL_CHAIN = ["planner", "builder", "reporter"]
@@ -31,6 +33,7 @@ PLAN_CHAIN = ["planner", "reporter"]
 class PrimeResult(BaseModel):
     intent: Intent
     decision: AutonomyDecision
+    situation: Situation
 
     def plan_text(self) -> str:
         i = self.intent
@@ -89,16 +92,31 @@ def _run_id(intent: Intent) -> str:
 
 
 class Prime:
-    def __init__(self, config: SynkageConfig, runs_dir: str | Path | None = None):
+    def __init__(
+        self,
+        config: SynkageConfig,
+        runs_dir: str | Path | None = None,
+        situation: str | None = None,
+        signals: SignalCollector | None = None,
+    ):
         self.config = config
         self.runs_dir = resolve_runs_dir(runs_dir)
         self.resolver = IntentResolver(config)
         self.guard = AutonomyGuard(config)
         self.skills = SkillRegistry(config)
+        self.signals = signals or SignalCollector(config.situation)
+        self.detector = SituationDetector(config.situation)
+        self.situation_override = situation  # e.g. --situation focused
+
+    def situation(self, command: str = "") -> Situation:
+        return self.detector.classify(self.signals.collect(command, override=self.situation_override))
 
     def handle(self, text: str) -> PrimeResult:
         intent = self.resolver.resolve(text)
-        return PrimeResult(intent=intent, decision=self.guard.decide(intent))
+        situation = self.situation(text)
+        return PrimeResult(
+            intent=intent, decision=self.guard.decide(intent, situation=situation), situation=situation
+        )
 
     def delegate(self, result: PrimeResult) -> DelegationResult:
         """Run the agent chain for this intent. Stops at the first failed agent."""

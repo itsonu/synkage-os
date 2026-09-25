@@ -76,3 +76,25 @@ def browser_session():
         pytest.skip(f"Chromium not available: {e}")
     yield session
     session.close()
+
+
+@pytest.fixture(autouse=True)
+def neutral_signals(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Deterministic situation in every test: no real ioreg/osascript probes, midday.
+    Without this, running tests on a Mac with Terminal in front would read 'focused'."""
+    from synkage.context import signal_ingestion
+    from synkage.context.activity_monitor import ActivitySignals
+    from synkage.context.time_context import TimeSignals
+
+    class NoActivity:
+        def read(self):
+            return ActivitySignals()
+
+    monkeypatch.setattr(signal_ingestion, "ActivityMonitor", NoActivity)
+    monkeypatch.setattr(
+        signal_ingestion,
+        "time_signals",
+        lambda quiet, now=None: TimeSignals(
+            now=now or __import__("datetime").datetime(2026, 1, 5, 12, 0), quiet_hours=False
+        ),
+    )

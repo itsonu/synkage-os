@@ -8,6 +8,8 @@
 
 **Built in Phase 2:** [agents](agents.md) (planner, builder, reporter)
 
+**Built in Phase 6:** [context](context.md) signals, [situation detector](situation-detector.md)
+
 **Built in Phase 5:** [tools](tools.md) (browser session, WhatsApp, Gmail, Apple Notes controllers)
 
 **Built in Phase 4:** [adapters](adapters.md) (contract, local_exec, openclaw stub), [execution](execution.md) (planner, router, audit)

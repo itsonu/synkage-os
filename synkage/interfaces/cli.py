@@ -17,7 +17,7 @@ from synkage.adapters.tool_adapter_base import ExecutionResult, ExecutionStatus
 from synkage.agents.base_agent import read_artifact
 from synkage.brain.intent_resolver import Mode
 from synkage.brain.prime import DelegationResult, Prime, PrimeResult
-from synkage.config import ConfigError, SynkageConfig, load_config
+from synkage.config import SITUATION_STATES, ConfigError, SynkageConfig, load_config
 from synkage.execution.autonomy_router import AutonomyRouter, load_request
 from synkage.execution.confirmation_loop import confirm
 from synkage.logging_setup import setup_logging
@@ -36,6 +36,10 @@ def main(
     log_level: Annotated[
         str | None, typer.Option("--log-level", help="DEBUG, INFO, WARNING or ERROR.")
     ] = None,
+    situation: Annotated[
+        str | None,
+        typer.Option("--situation", help="Force a situation: idle, normal, focused, urgent, emergency."),
+    ] = None,
 ) -> None:
     log = setup_logging(log_level)
     try:
@@ -44,15 +48,19 @@ def main(
         log.error("Config error: %s", e)
         raise typer.Exit(code=1) from e
     log.debug("Loaded config from %s", cfg.config_dir)
+    if situation is not None and situation not in SITUATION_STATES:
+        log.error("Unknown situation '%s' (use: %s)", situation, ", ".join(SITUATION_STATES))
+        raise typer.Exit(code=1)
+    ctx.meta["situation"] = situation
     ctx.obj = cfg
     if ctx.invoked_subcommand is None:
-        render_status(cfg)
+        render_status(cfg, situation)
 
 
 @app.command()
 def status(ctx: typer.Context) -> None:
-    """Print system state: config, autonomy, safety rules, tools."""
-    render_status(ctx.obj)
+    """Print system state: config, situation, autonomy, safety rules, tools."""
+    render_status(ctx.obj, ctx.meta.get("situation"))
 
 
 @app.command()
@@ -62,7 +70,7 @@ def parse(
     as_json: Annotated[bool, typer.Option("--json", help="Print the result as JSON.")] = False,
 ) -> None:
     """Parse one command and show the intent and autonomy decision. Executes nothing."""
-    result = Prime(ctx.obj).handle(command)
+    result = Prime(ctx.obj, situation=ctx.meta.get("situation")).handle(command)
     if as_json:
         print(result.model_dump_json(indent=2))
     else:
@@ -75,7 +83,7 @@ def prepare(
     command: Annotated[str, typer.Argument(help='e.g. "send message to Rahul: running late"')],
 ) -> None:
     """Parse a command and run the agent chain (plan -> draft -> report). Executes nothing."""
-    prime = Prime(ctx.obj)
+    prime = Prime(ctx.obj, situation=ctx.meta.get("situation"))
     result = prime.handle(command)
     render_result(result)
     delegation = prime.delegate(result)
@@ -90,7 +98,13 @@ def run(
     command: Annotated[str, typer.Argument(help='e.g. "send message to Raj: running late dry run"')],
 ) -> None:
     """Run one command: parse, prepare, confirm if needed, route to an adapter."""
-    ok = _process(ctx.obj, Prime(ctx.obj), AutonomyRouter(ctx.obj), command, _make_ask())
+    ok = _process(
+        ctx.obj,
+        Prime(ctx.obj, situation=ctx.meta.get("situation")),
+        AutonomyRouter(ctx.obj),
+        command,
+        _make_ask(),
+    )
     if not ok:
         raise typer.Exit(code=1)
 
@@ -98,7 +112,11 @@ def run(
 @app.command()
 def shell(ctx: typer.Context) -> None:
     """Interactive loop: parse, prepare via agents, confirm, route to an adapter."""
-    prime, router, ask = Prime(ctx.obj), AutonomyRouter(ctx.obj), _make_ask()
+    prime, router, ask = (
+        Prime(ctx.obj, situation=ctx.meta.get("situation")),
+        AutonomyRouter(ctx.obj),
+        _make_ask(),
+    )
     console.print("Synkage shell — type a command, 'exit' to quit.")
     while True:
         try:
@@ -227,6 +245,9 @@ def render_result(result: PrimeResult) -> None:
     console.print(table)
     for reason in i.unclear:
         console.print(f"[yellow]unclear:[/] {escape(reason)}")
+    console.print(
+        f"Situation: {result.situation.state.value} ({escape('; '.join(result.situation.reasons))})"
+    )
     confirmation = "required" if d.requires_confirmation else "not required"
     console.print(
         f"Autonomy: level [bold]{d.level}[/] · risk {d.risk_class} · "
@@ -266,11 +287,17 @@ def render_execution(execution: ExecutionResult) -> None:
     console.print(f"[{style}]Execution: {execution.status.value}[/] — {escape(execution.message)}")
 
 
-def render_status(cfg: SynkageConfig) -> None:
+def render_status(cfg: SynkageConfig, situation_override: str | None = None) -> None:
     a = cfg.autonomy
     default = a.levels[a.default_level]
+    situation = Prime(cfg, situation=situation_override).situation()
+    auto = cfg.situation.states[situation.state.value].auto_risk
     console.print(f"[bold]Synkage Core[/] v{__version__}")
     console.print(f"Config:   {cfg.config_dir}")
+    console.print(
+        f"Situation: [bold]{situation.state.value}[/] ({escape('; '.join(situation.reasons))})"
+        + (f" — {', '.join(auto)}-risk actions run without confirmation" if auto else "")
+    )
     console.print(
         f"Autonomy: default level [bold]{a.default_level}[/] ({default.name} — {default.description})"
     )

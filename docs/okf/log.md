@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-09-25T13:30:46Z — Phase 6 (Situation awareness)
+- New: [situation detector](modules/situation-detector.md), [situation config](data-models/situation-config.md), [ADR-0009](decisions/0009-situation-policy.md). Built: [context](modules/context.md).
+- Updated: [brain](modules/brain.md), [autonomy guard](modules/autonomy-guard.md) (situation rule), [CLI](modules/cli.md) (`--situation`, status line), [config loader](modules/config-loader.md), [audit log](data-models/audit-log.md) (situation field), [command pipeline](flows/command-pipeline.md).
+
 ## 2026-09-24T19:40:06Z — Phase 5 (Tool control), automated part
 - New: [ADR-0008](decisions/0008-macos-tool-control.md), [WhatsApp Web](services/whatsapp-web.md), [Gmail](services/gmail.md), [Apple Notes](services/apple-notes.md), [manual checks runbook](runbooks/phase5-manual-checks.md).
 - Built: [tools](modules/tools.md). Updated: [adapters](modules/adapters.md) (handlers, draft/discard), [execution routing](flows/execution-routing.md) + [execution](modules/execution.md) (draft step), [CLI](modules/cli.md) (`login`, draft in `run`), [tool registry](data-models/tool-registry.md), [app preferences](data-models/app-preferences.md), [command vocabulary](data-models/command-vocabulary.md), [audit log](data-models/audit-log.md), [confirmation loop](flows/confirmation-loop.md), [local setup](runbooks/local-setup.md).

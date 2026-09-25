@@ -153,3 +153,40 @@ def test_login_opens_pages_and_closes(monkeypatch):
     result = runner.invoke(app, ["login", "whatsapp"], input="\n")
     assert result.exit_code == 0, result.output
     assert opened == ["https://web.whatsapp.com/", "closed"]
+
+
+# --- Phase 6: situation ---------------------------------------------------------------------
+
+
+def test_status_shows_situation():
+    result = runner.invoke(app, ["status"])
+    assert result.exit_code == 0
+    assert "Situation: normal" in result.output
+
+
+def test_status_with_forced_situation_shows_effect():
+    result = runner.invoke(app, ["--situation", "urgent", "status"])
+    assert "Situation: urgent (set explicitly)" in result.output
+    assert "low-risk actions run without confirmation" in result.output
+
+
+def test_unknown_situation_exits_1():
+    assert runner.invoke(app, ["--situation", "sleepy", "status"]).exit_code == 1
+
+
+def test_focused_skips_confirmation_for_low_risk_but_idle_asks():
+    focused = runner.invoke(app, ["--situation", "focused", "run", "save note meeting at 4pm"], input="no\n")
+    idle = runner.invoke(app, ["--situation", "idle", "run", "save note meeting at 4pm"], input="no\n")
+    assert "Type 'yes'" not in focused.output
+    assert "Type 'yes'" in idle.output
+
+
+def test_urgent_keyword_in_command_sets_situation():
+    result = runner.invoke(app, ["parse", "send urgent message to Raj: call me"])
+    assert "Situation: urgent (command says: urgent)" in result.output
+
+
+def test_urgent_in_message_text_does_not_change_situation():
+    result = runner.invoke(app, ["parse", "save note: urgent call mom"])
+    assert "Situation: normal" in result.output
+    assert "confirmation: required" in result.output

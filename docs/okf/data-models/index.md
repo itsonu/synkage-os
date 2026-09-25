@@ -6,4 +6,5 @@
 - [App preferences](app-preferences.md) — `config/app_preferences.yaml` (built)
 - [Agent artifact](agent-artifact.md) — JSON file each agent writes (built)
 - [Audit log](audit-log.md) — append-only JSONL of routed actions (built)
+- [Situation config](situation-config.md) — `config/situation.yaml` (built)
 - [Memory store](memory-store.md) — planned

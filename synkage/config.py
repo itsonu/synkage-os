@@ -5,6 +5,7 @@ Files (all required):
     permissions.yaml       hard "never autonomous" categories
     command_aliases.yaml   command vocabulary (docs/command_grammar.md)
     app_preferences.yaml   preferred tool per task type
+    situation.yaml         situation signals/rules and per-state autonomy adjustment
     tool_registry.json     registered tools and their execution adapter
 
 Every problem surfaces as ConfigError with the offending file named, so the CLI
@@ -166,6 +167,35 @@ def tool_registry_json_schema() -> dict[str, Any]:
     return ToolRegistry.model_json_schema(by_alias=True)
 
 
+# --- situation.yaml ---------------------------------------------------------
+
+SITUATION_STATES = ("idle", "normal", "focused", "urgent", "emergency")
+
+
+class QuietHours(_Strict):
+    start: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+    end: str = Field(pattern=r"^([01]\d|2[0-3]):[0-5]\d$")
+
+
+class StatePolicy(_Strict):
+    auto_risk: list[str] = Field(default_factory=list)  # risk classes that skip confirmation
+
+
+class SituationConfig(_Strict):
+    idle_after_seconds: int = Field(gt=0)
+    focus_apps: list[str] = Field(default_factory=list)
+    urgent_keywords: list[str] = Field(default_factory=list)
+    emergency_keywords: list[str] = Field(default_factory=list)
+    quiet_hours: QuietHours
+    states: dict[str, StatePolicy]
+
+    @model_validator(mode="after")
+    def _check(self) -> SituationConfig:
+        if sorted(self.states) != sorted(SITUATION_STATES):
+            raise ValueError(f"states must be exactly {list(SITUATION_STATES)}, got {sorted(self.states)}")
+        return self
+
+
 # --- aggregate --------------------------------------------------------------
 
 
@@ -176,6 +206,7 @@ class SynkageConfig(BaseModel):
     commands: CommandAliases
     preferences: AppPreferences
     tools: ToolRegistry
+    situation: SituationConfig
 
     @model_validator(mode="after")
     def _cross_refs(self) -> SynkageConfig:
@@ -186,6 +217,13 @@ class SynkageConfig(BaseModel):
         for task, tool_id in self.preferences.preferred_tools.items():
             if self.tools.get(tool_id) is None:
                 problems.append(f"preferred_tools.{task} -> unknown tool '{tool_id}'")
+        for state, policy in self.situation.states.items():
+            for risk in policy.auto_risk:
+                rc = self.autonomy.risk_classes.get(risk)
+                if rc is None:
+                    problems.append(f"situation.states.{state}: unknown risk class '{risk}'")
+                elif rc.requires_confirmation:
+                    problems.append(f"situation.states.{state}: '{risk}' always requires confirmation")
         for phrase, tool_id in self.commands.tool_directives.items():
             if self.tools.get(tool_id) is None:
                 problems.append(f"tool_directives '{phrase}' -> unknown tool '{tool_id}'")
@@ -253,6 +291,7 @@ def load_config(config_dir: str | Path | None = None) -> SynkageConfig:
         "commands": _build(CommandAliases, d / "command_aliases.yaml"),
         "preferences": _build(AppPreferences, d / "app_preferences.yaml"),
         "tools": _build(ToolRegistry, d / "tool_registry.json"),
+        "situation": _build(SituationConfig, d / "situation.yaml"),
     }
     try:
         return SynkageConfig(config_dir=d, **parts)
