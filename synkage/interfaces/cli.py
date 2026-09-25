@@ -21,6 +21,7 @@ from synkage.config import SITUATION_STATES, ConfigError, SynkageConfig, load_co
 from synkage.execution.autonomy_router import AutonomyRouter, load_request
 from synkage.execution.confirmation_loop import confirm
 from synkage.logging_setup import setup_logging
+from synkage.memory.store import MemoryStore
 from synkage.skills.registry import SkillRegistry
 
 app = typer.Typer(add_completion=False, help="Synkage — situation-aware execution copilot.")
@@ -52,6 +53,12 @@ def main(
         log.error("Unknown situation '%s' (use: %s)", situation, ", ".join(SITUATION_STATES))
         raise typer.Exit(code=1)
     ctx.meta["situation"] = situation
+    try:
+        for path in MemoryStore(cfg).ensure():  # first run: create the personal memory files
+            log.info("Created %s", path)
+    except OSError as e:
+        log.error("Cannot create memory: %s", e)
+        raise typer.Exit(code=1) from e
     ctx.obj = cfg
     if ctx.invoked_subcommand is None:
         render_status(cfg, situation)
@@ -294,6 +301,10 @@ def render_status(cfg: SynkageConfig, situation_override: str | None = None) -> 
     auto = cfg.situation.states[situation.state.value].auto_risk
     console.print(f"[bold]Synkage Core[/] v{__version__}")
     console.print(f"Config:   {cfg.config_dir}")
+    store = MemoryStore(cfg)
+    rel = store.load_relationship()
+    last = rel.last_night_cycle.strftime("%Y-%m-%d %H:%M UTC") if rel.last_night_cycle else "never"
+    console.print(f"Memory:   {store.dir} · trust {rel.trust:.2f} · last night cycle {last}")
     console.print(
         f"Situation: [bold]{situation.state.value}[/] ({escape('; '.join(situation.reasons))})"
         + (f" — {', '.join(auto)}-risk actions run without confirmation" if auto else "")

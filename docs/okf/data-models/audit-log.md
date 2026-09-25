@@ -2,7 +2,7 @@
 type: Data Model
 title: Audit log
 description: Append-only JSONL record of every routed action.
-timestamp: 2026-09-25T13:30:46Z
+timestamp: 2026-09-25T13:38:13Z
 sources:
   - synkage/execution/audit.py
 ---
@@ -11,7 +11,7 @@ sources:
 built (Phase 4)
 
 ## Location
-`logs.jsonl` at the repo root (gitignored). `SYNKAGE_AUDIT_LOG` overrides it; the path is resolved by `resolve_audit_log()` in the [config loader](../modules/config-loader.md). Tests use a temp file via an autouse fixture.
+`<memory dir>/logs.jsonl`, i.e. `~/.synkage/memory/logs.jsonl` since Phase 7 (before that it was the repo root). `SYNKAGE_AUDIT_LOG` overrides it; the path is resolved by `resolve_audit_log()` in the [config loader](../modules/config-loader.md). Tests use a temp file via an autouse fixture. Part of the [memory store](memory-store.md).
 
 ## Record (`AuditRecord`, one JSON object per line)
 | Field | Notes |
@@ -26,7 +26,7 @@ built (Phase 4)
 | `confirmation` | `{required, confirmed}`; `confirmed` is null when never asked |
 | `result` | `{status, message}`; `drafted` records a pre-confirmation draft |
 
-The fields match `docs/autonomy_safety.md` (intent, tool, autonomy level, confirmation state, result). The log is only appended to; nothing rewrites it.
+The fields match `docs/autonomy_safety.md` (intent, tool, autonomy level, confirmation state, result). `AuditLog.append` takes an exclusive flock. The **only** rewriter is the [night cycle](../flows/night-cycle.md), which moves records older than `retention_days` into daily summaries and a gzip archive (lossless) under the same lock.
 
 ## Unknowns
-- `intent.raw` includes message text. Retention and location move with the memory decision in [Phase 7](../../phases/phase-07-memory.md), where the spec's `memory/logs.json` lives.
+- None left from Phase 4: location and retention were decided in Phase 7 ([ADR-0010](../decisions/0010-memory-and-trust.md)).

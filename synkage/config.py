@@ -6,6 +6,7 @@ Files (all required):
     command_aliases.yaml   command vocabulary (docs/command_grammar.md)
     app_preferences.yaml   preferred tool per task type
     situation.yaml         situation signals/rules and per-state autonomy adjustment
+    memory.yaml            memory retention, trust deltas/decay, night-cycle schedule
     tool_registry.json     registered tools and their execution adapter
 
 Every problem surfaces as ConfigError with the offending file named, so the CLI
@@ -196,6 +197,28 @@ class SituationConfig(_Strict):
         return self
 
 
+# --- memory.yaml ------------------------------------------------------------
+
+
+class TrustConfig(_Strict):
+    neutral: float = Field(ge=0, le=1)
+    success: float = Field(ge=0, le=0.5)
+    declined: float = Field(le=0, ge=-0.5)
+    failed: float = Field(le=0, ge=-0.5)
+    decay_per_day: float = Field(ge=0, le=1)
+
+
+class Schedule(_Strict):
+    hour: int = Field(ge=0, le=23)
+    minute: int = Field(ge=0, le=59)
+
+
+class MemoryConfig(_Strict):
+    retention_days: int = Field(ge=1)
+    trust: TrustConfig
+    schedule: Schedule
+
+
 # --- aggregate --------------------------------------------------------------
 
 
@@ -207,6 +230,7 @@ class SynkageConfig(BaseModel):
     preferences: AppPreferences
     tools: ToolRegistry
     situation: SituationConfig
+    memory: MemoryConfig
 
     @model_validator(mode="after")
     def _cross_refs(self) -> SynkageConfig:
@@ -252,11 +276,20 @@ def resolve_runs_dir(runs_dir: str | Path | None = None) -> Path:
     return path if path.is_absolute() else (REPO_ROOT / path)
 
 
+def resolve_memory_dir(memory_dir: str | Path | None = None) -> Path:
+    """Personal memory, outside the repo. Explicit arg > SYNKAGE_MEMORY_DIR > ~/.synkage/memory."""
+    if memory_dir is None:
+        load_dotenv(REPO_ROOT / ".env")
+        memory_dir = os.environ.get("SYNKAGE_MEMORY_DIR") or Path.home() / ".synkage" / "memory"
+    return Path(memory_dir).expanduser()
+
+
 def resolve_audit_log(audit_log: str | Path | None = None) -> Path:
-    """Append-only audit log. Explicit arg > SYNKAGE_AUDIT_LOG (env or .env) > <repo>/logs.jsonl."""
+    """Append-only audit log (the spec's interaction log, part of memory).
+    Explicit arg > SYNKAGE_AUDIT_LOG (env or .env) > <memory dir>/logs.jsonl."""
     if audit_log is None:
         load_dotenv(REPO_ROOT / ".env")
-        audit_log = os.environ.get("SYNKAGE_AUDIT_LOG") or REPO_ROOT / "logs.jsonl"
+        audit_log = os.environ.get("SYNKAGE_AUDIT_LOG") or resolve_memory_dir() / "logs.jsonl"
     path = Path(audit_log)
     return path if path.is_absolute() else (REPO_ROOT / path)
 
@@ -292,6 +325,7 @@ def load_config(config_dir: str | Path | None = None) -> SynkageConfig:
         "preferences": _build(AppPreferences, d / "app_preferences.yaml"),
         "tools": _build(ToolRegistry, d / "tool_registry.json"),
         "situation": _build(SituationConfig, d / "situation.yaml"),
+        "memory": _build(MemoryConfig, d / "memory.yaml"),
     }
     try:
         return SynkageConfig(config_dir=d, **parts)

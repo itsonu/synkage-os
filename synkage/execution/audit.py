@@ -1,10 +1,13 @@
 """Audit log (docs/autonomy_safety.md): every routed action — executed, refused, or
 dry-run — appends one JSON line with intent, tool, autonomy level, confirmation
-state and result. Append-only; nothing here rewrites or deletes records.
+state and result. Append-only here. The only rewriter is the night cycle (synkage/memory/night_cycle.py),
+which moves old records into summaries + a gzip archive. Both sides hold an
+exclusive flock on the file, so a record appended mid-cycle is never lost.
 """
 
 from __future__ import annotations
 
+import fcntl
 import json
 from datetime import datetime, timezone
 from pathlib import Path
@@ -35,6 +38,7 @@ class AuditLog:
     def append(self, record: AuditRecord) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         with self.path.open("a", encoding="utf-8") as f:
+            fcntl.flock(f, fcntl.LOCK_EX)  # released on close
             f.write(record.model_dump_json() + "\n")
 
     def read(self) -> list[AuditRecord]:

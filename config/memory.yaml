@@ -1,0 +1,16 @@
+# Memory & night cycle (Phase 7). Memory files live outside the repo:
+# ~/.synkage/memory/ (override with SYNKAGE_MEMORY_DIR). They hold personal data.
+
+retention_days: 30        # audit records older than this are compressed by the night cycle
+
+# Trust score in [0, 1]. Moved only by logged outcomes; decays toward neutral.
+# It is recorded and shown; it can never unlock high-risk or never-autonomous actions.
+trust:
+  neutral: 0.5
+  success: 0.02           # a confirmed action that succeeded
+  declined: -0.03         # the user answered "no"
+  failed: -0.05           # an action that failed
+  decay_per_day: 0.1      # fraction of the gap to neutral closed per day
+
+# When `scripts/nightly_update.py --schedule` runs the cycle (local time).
+schedule: {hour: 3, minute: 17}

@@ -1,16 +1,25 @@
 ---
 type: Data Model
 title: Memory store
-description: Planned local files: user profile, relationship state, interaction logs, project notes.
-timestamp: 2026-09-24T18:48:53Z
+description: Personal files in ~/.synkage/memory — profile, relationship/trust, audit log, summaries, archive.
+timestamp: 2026-09-25T13:38:13Z
+sources:
+  - synkage/memory/store.py
 ---
 
 ## Status
-planned — [Phase 7](../../phases/phase-07-memory.md).
+built (Phase 7). Location decided: `~/.synkage/memory/` ([ADR-0010](../decisions/0010-memory-and-trust.md)).
 
-## Planned files
-`user_profile.json`, `relationship_state.json`, `logs.json`, `project.md` (per `docs/proj.md`). Written by the [memory layer](../modules/memory.md); rationale in [ADR-0004](../decisions/0004-local-file-memory.md).
+## Layout
+| File | Contents |
+|---|---|
+| `user_profile.json` | `created`, `name`, `preferences` (grows later) |
+| `relationship_state.json` | `trust` (0–1), `outcomes {confirmed_success, declined, failed}`, `last_night_cycle`, `history [{at, trust}]` (last 90) |
+| `logs.jsonl` | [audit log](audit-log.md) |
+| `log_summaries.json` | `{"YYYY-MM-DD": {total, by_status, by_tool, by_verb}}`, made by the [night cycle](../flows/night-cycle.md) |
+| `archive/logs-YYYY-MM.jsonl.gz` | Raw audit lines the night cycle compressed (gzip members appended) |
 
-## Unknowns
-- Location: the spec puts them in the repo's `memory/` folder, but personal data should not be committed. A user data dir (e.g. `~/.synkage/`) is likely better — decide in Phase 7.
-- How the user trust score is computed and stored.
+The directory is created 0700 and holds message text. `SYNKAGE_MEMORY_DIR` overrides the location. Writes are atomic (temp file + rename).
+
+## Connections
+Written by the [memory layer](../modules/memory.md). Read by the [CLI](../modules/cli.md) `status` (trust, last cycle).

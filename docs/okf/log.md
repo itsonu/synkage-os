@@ -2,6 +2,10 @@
 
 Newest first.
 
+## 2026-09-25T13:38:13Z — Phase 7 (Memory & night cycle)
+- New: [memory config](data-models/memory-config.md), [ADR-0010](decisions/0010-memory-and-trust.md). Built: [memory](modules/memory.md), [memory store](data-models/memory-store.md), [night cycle](flows/night-cycle.md).
+- Updated: [audit log](data-models/audit-log.md) (moved into memory; flock; night cycle is the only rewriter), [execution](modules/execution.md), [config loader](modules/config-loader.md), [CLI](modules/cli.md), [local setup](runbooks/local-setup.md).
+
 ## 2026-09-25T13:30:46Z — Phase 6 (Situation awareness)
 - New: [situation detector](modules/situation-detector.md), [situation config](data-models/situation-config.md), [ADR-0009](decisions/0009-situation-policy.md). Built: [context](modules/context.md).
 - Updated: [brain](modules/brain.md), [autonomy guard](modules/autonomy-guard.md) (situation rule), [CLI](modules/cli.md) (`--situation`, status line), [config loader](modules/config-loader.md), [audit log](data-models/audit-log.md) (situation field), [command pipeline](flows/command-pipeline.md).

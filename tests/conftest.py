@@ -98,3 +98,11 @@ def neutral_signals(monkeypatch: pytest.MonkeyPatch) -> None:
             now=now or __import__("datetime").datetime(2026, 1, 5, 12, 0), quiet_hours=False
         ),
     )
+
+
+@pytest.fixture(autouse=True)
+def memory_dir(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
+    """Never touch the real ~/.synkage/memory in tests."""
+    d = tmp_path / "memory"
+    monkeypatch.setenv("SYNKAGE_MEMORY_DIR", str(d))
+    return d

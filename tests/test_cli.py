@@ -42,7 +42,7 @@ def test_parse_json():
 
     result = runner.invoke(app, ["parse", "--json", "send message to Rahul"])
     assert result.exit_code == 0, result.output
-    data = json.loads(result.output)
+    data = json.loads(result.stdout)  # logs go to stderr
     assert data["intent"]["target"] == "Rahul"
     assert data["decision"]["requires_confirmation"] is True
 

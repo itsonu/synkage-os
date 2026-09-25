@@ -8,6 +8,8 @@
 
 **Built in Phase 2:** [agents](agents.md) (planner, builder, reporter)
 
+**Built in Phase 7:** [memory](memory.md) (store, night cycle, nightly script)
+
 **Built in Phase 6:** [context](context.md) signals, [situation detector](situation-detector.md)
 
 **Built in Phase 5:** [tools](tools.md) (browser session, WhatsApp, Gmail, Apple Notes controllers)

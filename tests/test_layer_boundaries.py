@@ -16,6 +16,15 @@ FORBIDDEN = {
     "skills": ("synkage.brain", "synkage.tools", "synkage.adapters", "synkage.execution"),
     # adapters run what the router hands them; they can't reach the decision layers
     "adapters": ("synkage.brain", "synkage.agents", "synkage.execution"),
+    # memory is plain files; it reads audit lines as JSON rather than importing execution
+    "memory": (
+        "synkage.brain",
+        "synkage.agents",
+        "synkage.skills",
+        "synkage.execution",
+        "synkage.adapters",
+        "synkage.tools",
+    ),
     # context only reports signals; deciding is the brain's job
     "context": ("synkage.brain", "synkage.agents", "synkage.skills", "synkage.execution", "synkage.adapters"),
     # tool controllers take plain arguments; they know nothing above them

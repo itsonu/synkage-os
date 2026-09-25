@@ -7,4 +7,5 @@
 - [Agent artifact](agent-artifact.md) — JSON file each agent writes (built)
 - [Audit log](audit-log.md) — append-only JSONL of routed actions (built)
 - [Situation config](situation-config.md) — `config/situation.yaml` (built)
-- [Memory store](memory-store.md) — planned
+- [Memory store](memory-store.md) — `~/.synkage/memory` files (built)
+- [Memory config](memory-config.md) — `config/memory.yaml` (built)
